@@ -276,6 +276,23 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
 
+  /* Select styling */
+  select {
+    font-family: inherit;
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--color-white);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+    
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(0, 168, 232, 0.1);
+    }
+  }
+
   /* Responsive adjustments */
   @media (max-width: 768px) {
     h1 { font-size: 2rem; }
@@ -284,6 +301,17 @@ export const GlobalStyles = createGlobalStyle`
     
     .container {
       padding: 0 var(--spacing-md);
+    }
+    
+    /* Mobile adjustments for client area */
+    .client-mobile {
+      display: none;
+    }
+    
+    @media (max-width: 992px) {
+      .client-mobile {
+        display: block;
+      }
     }
   }
 `

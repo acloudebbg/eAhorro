@@ -407,7 +407,7 @@ const Header: React.FC = () => {
               </LoginButton>
             </>
           ) : (
-            <LoginButton href="https://areacliente.iahorro.com/login" target="_blank" rel="noopener noreferrer">
+            <LoginButton as={Link} to="/login">
               Área de usuario
             </LoginButton>
           )}

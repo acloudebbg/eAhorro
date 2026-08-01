@@ -1,3 +1,4 @@
+import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import HipotecasPage from './pages/HipotecasPage'
@@ -10,6 +11,8 @@ import ContactoPage from './pages/ContactoPage'
 import BlogPage from './pages/BlogPage'
 import QuienesSomosPage from './pages/QuienesSomosPage'
 import Layout from './components/Layout/Layout'
+import LoginPage from './pages/LoginPage'
+import ClientAreaPage from './pages/ClientAreaPage'
 
 // Páginas simples para rutas del sitemap
 import AvisoLegalPage from './pages/AvisoLegalPage'
@@ -23,82 +26,89 @@ import IndiceIAhorroPage from './pages/IndiceIAhorroPage'
 import FAQsPage from './pages/FAQsPage'
 import TasacionViviendaPage from './pages/TasacionViviendaPage'
 
+// Componente wrapper para Layout
+const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <Layout>{children}</Layout>
+)
+
 function App() {
   return (
-    <Layout>
-      <Routes>
-        {/* Home */}
-        <Route path="/" element={<HomePage />} />
-        
-        {/* Hipotecas */}
-        <Route path="/hipotecas" element={<HipotecasPage />} />
-        <Route path="/hipotecas/mejorar-hipoteca" element={<HipotecasPage tipo="mejorar" />} />
-        <Route path="/hipotecas/fijas" element={<HipotecasPage tipo="fijas" />} />
-        <Route path="/hipotecas/variables" element={<HipotecasPage tipo="variables" />} />
-        <Route path="/hipotecas/mixtas" element={<HipotecasPage tipo="mixtas" />} />
-        <Route path="/hipotecas/sin-aval" element={<HipotecasPage tipo="sin-aval" />} />
-        <Route path="/hipotecas/online" element={<HipotecasPage tipo="online" />} />
-        <Route path="/hipotecas/100" element={<HipotecasPage tipo="100" />} />
-        <Route path="/hipotecas/jovenes" element={<HipotecasPage tipo="jovenes" />} />
-        <Route path="/hipotecas/funcionarios" element={<HipotecasPage tipo="funcionarios" />} />
-        <Route path="/hipotecas/autonomos" element={<HipotecasPage tipo="autonomos" />} />
-        <Route path="/hipotecas/reforma" element={<HipotecasPage tipo="reforma" />} />
-        <Route path="/hipotecas/terreno" element={<HipotecasPage tipo="terreno" />} />
-        <Route path="/hipotecas/vpo" element={<HipotecasPage tipo="vpo" />} />
-        <Route path="/hipotecas/tasacion-vivienda" element={<TasacionViviendaPage />} />
-        
-        {/* Hipotecas por importe */}
-        <Route path="/hipotecas/500000-euros" element={<HipotecasPage tipo="500000-euros" />} />
-        <Route path="/hipotecas/300000-euros" element={<HipotecasPage tipo="300000-euros" />} />
-        <Route path="/hipotecas/200000-euros" element={<HipotecasPage tipo="200000-euros" />} />
-        <Route path="/hipotecas/180000-euros" element={<HipotecasPage tipo="180000-euros" />} />
-        <Route path="/hipotecas/150000-euros" element={<HipotecasPage tipo="150000-euros" />} />
-        
-        {/* Hipotecas por provincia */}
-        <Route path="/hipotecas/madrid" element={<HipotecasPage tipo="madrid" />} />
-        <Route path="/hipotecas/barcelona" element={<HipotecasPage tipo="barcelona" />} />
-        <Route path="/hipotecas/valencia" element={<HipotecasPage tipo="valencia" />} />
-        <Route path="/hipotecas/malaga" element={<HipotecasPage tipo="malaga" />} />
-        
-        {/* Calculadoras */}
-        <Route path="/calculadoras" element={<CalculadorasPage />} />
-        <Route path="/calculadoras/cuota-hipoteca" element={<CuotaHipotecaPage />} />
-        <Route path="/calculadoras/gastos-hipoteca" element={<GastosHipotecaPage />} />
-        <Route path="/calculadoras/hipoteca-fija-o-mixta" element={<CuotaHipotecaPage />} />
-        <Route path="/calculadoras/subrogacion" element={<CuotaHipotecaPage />} />
-        <Route path="/calculadoras/amortizacion" element={<CuotaHipotecaPage />} />
-        <Route path="/calculadoras/que-casa-me-puedo-permitir" element={<CuotaHipotecaPage />} />
-        <Route path="/calculadoras/hipoteca-fija-vs-variable" element={<CuotaHipotecaPage />} />
-        
-        {/* Comparadores */}
-        <Route path="/comparador-hipotecas" element={<ComparadorPage />} />
-        <Route path="/indice-iahorro-hipotecas" element={<IndiceIAhorroPage />} />
-        
-        {/* Euribor */}
-        <Route path="/euribor" element={<EuriborPage />} />
-        
-        {/* Blog */}
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/*" element={<BlogPage />} />
-        
-        {/* Pages */}
-        <Route path="/quienes-somos" element={<QuienesSomosPage />} />
-        <Route path="/contacta-con-iahorro" element={<ContactoPage />} />
-        <Route path="/sitemap" element={<SitemapPage />} />
-        <Route path="/diccionario" element={<DiccionarioPage />} />
-        <Route path="/faqs" element={<FAQsPage />} />
-        
-        {/* Legales */}
-        <Route path="/aviso-legal" element={<AvisoLegalPage />} />
-        <Route path="/politica-de-privacidad" element={<PoliticaPrivacidadPage />} />
-        <Route path="/politica-de-cookies" element={<PoliticaCookiesPage />} />
-        <Route path="/condiciones-generales" element={<CondicionesGeneralesPage />} />
-        <Route path="/hipotecas/reclamaciones" element={<ReclamacionesPage />} />
-        
-        {/* 404 - por implementar */}
-        <Route path="*" element={<HomePage />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      {/* Login y Área de Cliente (fuera del Layout principal) */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/area-cliente" element={<ClientAreaPage />} />
+      
+      {/* Home */}
+      <Route path="/" element={<LayoutWrapper><HomePage /></LayoutWrapper>} />
+      
+      {/* Hipotecas */}
+      <Route path="/hipotecas" element={<LayoutWrapper><HipotecasPage /></LayoutWrapper>} />
+      <Route path="/hipotecas/mejorar-hipoteca" element={<LayoutWrapper><HipotecasPage tipo="mejorar" /></LayoutWrapper>} />
+      <Route path="/hipotecas/fijas" element={<LayoutWrapper><HipotecasPage tipo="fijas" /></LayoutWrapper>} />
+      <Route path="/hipotecas/variables" element={<LayoutWrapper><HipotecasPage tipo="variables" /></LayoutWrapper>} />
+      <Route path="/hipotecas/mixtas" element={<LayoutWrapper><HipotecasPage tipo="mixtas" /></LayoutWrapper>} />
+      <Route path="/hipotecas/sin-aval" element={<LayoutWrapper><HipotecasPage tipo="sin-aval" /></LayoutWrapper>} />
+      <Route path="/hipotecas/online" element={<LayoutWrapper><HipotecasPage tipo="online" /></LayoutWrapper>} />
+      <Route path="/hipotecas/100" element={<LayoutWrapper><HipotecasPage tipo="100" /></LayoutWrapper>} />
+      <Route path="/hipotecas/jovenes" element={<LayoutWrapper><HipotecasPage tipo="jovenes" /></LayoutWrapper>} />
+      <Route path="/hipotecas/funcionarios" element={<LayoutWrapper><HipotecasPage tipo="funcionarios" /></LayoutWrapper>} />
+      <Route path="/hipotecas/autonomos" element={<LayoutWrapper><HipotecasPage tipo="autonomos" /></LayoutWrapper>} />
+      <Route path="/hipotecas/reforma" element={<LayoutWrapper><HipotecasPage tipo="reforma" /></LayoutWrapper>} />
+      <Route path="/hipotecas/terreno" element={<LayoutWrapper><HipotecasPage tipo="terreno" /></LayoutWrapper>} />
+      <Route path="/hipotecas/vpo" element={<LayoutWrapper><HipotecasPage tipo="vpo" /></LayoutWrapper>} />
+      <Route path="/hipotecas/tasacion-vivienda" element={<LayoutWrapper><TasacionViviendaPage /></LayoutWrapper>} />
+      
+      {/* Hipotecas por importe */}
+      <Route path="/hipotecas/500000-euros" element={<LayoutWrapper><HipotecasPage tipo="500000-euros" /></LayoutWrapper>} />
+      <Route path="/hipotecas/300000-euros" element={<LayoutWrapper><HipotecasPage tipo="300000-euros" /></LayoutWrapper>} />
+      <Route path="/hipotecas/200000-euros" element={<LayoutWrapper><HipotecasPage tipo="200000-euros" /></LayoutWrapper>} />
+      <Route path="/hipotecas/180000-euros" element={<LayoutWrapper><HipotecasPage tipo="180000-euros" /></LayoutWrapper>} />
+      <Route path="/hipotecas/150000-euros" element={<LayoutWrapper><HipotecasPage tipo="150000-euros" /></LayoutWrapper>} />
+      
+      {/* Hipotecas por provincia */}
+      <Route path="/hipotecas/madrid" element={<LayoutWrapper><HipotecasPage tipo="madrid" /></LayoutWrapper>} />
+      <Route path="/hipotecas/barcelona" element={<LayoutWrapper><HipotecasPage tipo="barcelona" /></LayoutWrapper>} />
+      <Route path="/hipotecas/valencia" element={<LayoutWrapper><HipotecasPage tipo="valencia" /></LayoutWrapper>} />
+      <Route path="/hipotecas/malaga" element={<LayoutWrapper><HipotecasPage tipo="malaga" /></LayoutWrapper>} />
+      
+      {/* Calculadoras */}
+      <Route path="/calculadoras" element={<LayoutWrapper><CalculadorasPage /></LayoutWrapper>} />
+      <Route path="/calculadoras/cuota-hipoteca" element={<LayoutWrapper><CuotaHipotecaPage /></LayoutWrapper>} />
+      <Route path="/calculadoras/gastos-hipoteca" element={<LayoutWrapper><GastosHipotecaPage /></LayoutWrapper>} />
+      <Route path="/calculadoras/hipoteca-fija-o-mixta" element={<LayoutWrapper><CuotaHipotecaPage /></LayoutWrapper>} />
+      <Route path="/calculadoras/subrogacion" element={<LayoutWrapper><CuotaHipotecaPage /></LayoutWrapper>} />
+      <Route path="/calculadoras/amortizacion" element={<LayoutWrapper><CuotaHipotecaPage /></LayoutWrapper>} />
+      <Route path="/calculadoras/que-casa-me-puedo-permitir" element={<LayoutWrapper><CuotaHipotecaPage /></LayoutWrapper>} />
+      <Route path="/calculadoras/hipoteca-fija-vs-variable" element={<LayoutWrapper><CuotaHipotecaPage /></LayoutWrapper>} />
+      
+      {/* Comparadores */}
+      <Route path="/comparador-hipotecas" element={<LayoutWrapper><ComparadorPage /></LayoutWrapper>} />
+      <Route path="/indice-iahorro-hipotecas" element={<LayoutWrapper><IndiceIAhorroPage /></LayoutWrapper>} />
+      
+      {/* Euribor */}
+      <Route path="/euribor" element={<LayoutWrapper><EuriborPage /></LayoutWrapper>} />
+      
+      {/* Blog */}
+      <Route path="/blog" element={<LayoutWrapper><BlogPage /></LayoutWrapper>} />
+      <Route path="/blog/*" element={<LayoutWrapper><BlogPage /></LayoutWrapper>} />
+      
+      {/* Pages */}
+      <Route path="/quienes-somos" element={<LayoutWrapper><QuienesSomosPage /></LayoutWrapper>} />
+      <Route path="/contacta-con-iahorro" element={<LayoutWrapper><ContactoPage /></LayoutWrapper>} />
+      <Route path="/sitemap" element={<LayoutWrapper><SitemapPage /></LayoutWrapper>} />
+      <Route path="/diccionario" element={<LayoutWrapper><DiccionarioPage /></LayoutWrapper>} />
+      <Route path="/faqs" element={<LayoutWrapper><FAQsPage /></LayoutWrapper>} />
+      
+      {/* Legales */}
+      <Route path="/aviso-legal" element={<LayoutWrapper><AvisoLegalPage /></LayoutWrapper>} />
+      <Route path="/politica-de-privacidad" element={<LayoutWrapper><PoliticaPrivacidadPage /></LayoutWrapper>} />
+      <Route path="/politica-de-cookies" element={<LayoutWrapper><PoliticaCookiesPage /></LayoutWrapper>} />
+      <Route path="/condiciones-generales" element={<LayoutWrapper><CondicionesGeneralesPage /></LayoutWrapper>} />
+      <Route path="/hipotecas/reclamaciones" element={<LayoutWrapper><ReclamacionesPage /></LayoutWrapper>} />
+      
+      {/* 404 - por implementar */}
+      <Route path="*" element={<LayoutWrapper><HomePage /></LayoutWrapper>} />
+    </Routes>
   )
 }
 

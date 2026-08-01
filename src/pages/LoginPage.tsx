@@ -1,0 +1,270 @@
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+
+const LoginContainer = styled.div`
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-gray-50);
+`
+
+const LoginHeader = styled.header`
+  background: var(--color-white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--color-gray-200);
+`
+
+const LoginHeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+`
+
+const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  
+  & img {
+    height: 40px;
+    width: auto;
+  }
+`
+
+const LoginMain = styled.main`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+`
+
+const LoginCard = styled.div`
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-2xl);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+`
+
+const LoginTitle = styled.h1`
+  font-size: 1.75rem;
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+`
+
+const LoginSubtitle = styled.p`
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-xl);
+  font-size: 0.95rem;
+  line-height: 1.6;
+`
+
+const FormGroup = styled.div`
+  margin-bottom: var(--spacing-lg);
+  text-align: left;
+`
+
+const Label = styled.label`
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-xs);
+`
+
+const Input = styled.input`
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 2px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: border-color var(--transition-fast);
+  color: var(--color-gray-800);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 168, 232, 0.1);
+  }
+  
+  &::placeholder {
+    color: var(--color-gray-500);
+  }
+`
+
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 168, 232, 0.2);
+  }
+  
+  &:disabled {
+    background: var(--color-gray-400);
+    cursor: not-allowed;
+    transform: none;
+  }
+`
+
+const ErrorMessage = styled.div`
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: var(--spacing-xs);
+  text-align: left;
+  min-height: 20px;
+`
+
+const LoginHelp = styled.div`
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-gray-200);
+  
+  & p {
+    font-size: 0.85rem;
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  & a {
+    color: var(--color-primary);
+    font-weight: 500;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`
+
+const LanguageSelector = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  
+  & select {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    background: var(--color-white);
+    cursor: pointer;
+  }
+`
+
+const LoginPage: React.FC = () => {
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+
+  // Validación básica de formato de correo
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    
+    if (!email.trim()) {
+      setError('El correo electrónico es obligatorio')
+      return
+    }
+    
+    if (!validateEmail(email)) {
+      setError('Introduce un correo electrónico válido')
+      return
+    }
+    
+    // Simular envío
+    setIsLoading(true)
+    
+    // Redirigir al área de cliente después de 1 segundo (simulación)
+    setTimeout(() => {
+      setIsLoading(false)
+      navigate('/area-cliente')
+    }, 1000)
+  }
+
+  return (
+    <LoginContainer>
+      <LoginHeader>
+        <LoginHeaderContent>
+          <Logo>
+            <img 
+              src="https://iahorro.imgix.net/img/general/logo_ia-w.svg?auto=format%2Ccompress&q=75" 
+              alt="iAhorro" 
+            />
+          </Logo>
+          <LanguageSelector>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>🇪🇸</span>
+            <select defaultValue="es">
+              <option value="es">Castellano</option>
+              <option value="ca">Català</option>
+            </select>
+          </LanguageSelector>
+        </LoginHeaderContent>
+      </LoginHeader>
+      
+      <LoginMain>
+        <LoginCard>
+          <LoginTitle>Accede a tu área de cliente</LoginTitle>
+          <LoginSubtitle>
+            Introduce tu correo electrónico y te enviaremos un enlace para acceder de forma rápida y segura.
+          </LoginSubtitle>
+          
+          <form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Label htmlFor="email">Correo electrónico</Label>
+              <Input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ejemplo@correo.com"
+                autoComplete="email"
+                autoFocus
+              />
+              <ErrorMessage>{error}</ErrorMessage>
+            </FormGroup>
+            
+            <SubmitButton type="submit" disabled={isLoading}>
+              {isLoading ? 'Enviando...' : 'Enviarme enlace de acceso'}
+            </SubmitButton>
+          </form>
+          
+          <LoginHelp>
+            <p>
+              ¿Problemas para acceder? <a href="#">Contacta con nosotros</a>
+            </p>
+            <p style={{ fontSize: '0.8rem', marginTop: '10px' }}>
+              Al continuar, aceptas nuestra <a href="/politica-de-privacidad">Política de Privacidad</a> y <a href="/aviso-legal">Aviso Legal</a>
+            </p>
+          </LoginHelp>
+        </LoginCard>
+      </LoginMain>
+    </LoginContainer>
+  )
+}
+
+export default LoginPage
