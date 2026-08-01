@@ -283,6 +283,16 @@ const MainContent = styled.main`
   }
 `
 
+const ContentWrapper = styled.div`
+  display: flex;
+  gap: var(--spacing-xl);
+  width: 100%;
+  
+  @media (max-width: 992px) {
+    flex-direction: column;
+  }
+`
+
 const LeftColumn = styled.div`
   flex: 1;
   display: flex;
@@ -292,11 +302,7 @@ const LeftColumn = styled.div`
   
   @media (min-width: 993px) {
     flex: 2;
-    max-width: 66.666%;
-  }
-  
-  @media (max-width: 992px) {
-    order: 2;
+    max-width: calc(66.666% - var(--spacing-lg));
   }
 `
 
@@ -308,11 +314,15 @@ const RightColumn = styled.div`
   width: 100%;
   
   @media (min-width: 993px) {
-    max-width: 33.333%;
+    max-width: calc(33.333% - var(--spacing-lg));
+    position: sticky;
+    top: 100px;
+    align-self: flex-start;
   }
   
   @media (max-width: 992px) {
-    order: 1;
+    order: -1;
+    max-width: 100%;
   }
 `
 
@@ -918,121 +928,123 @@ const ClientAreaPage: React.FC = () => {
 
       {/* Contenido principal */}
       <MainContent>
-        <LeftColumn>
-          {/* Sección de bienvenida */}
-          <WelcomeSection>
-            <WelcomeTitle>
-              {userName}, sube ahora tus documentos y acelera la solicitud de tu hipoteca
-            </WelcomeTitle>
-            <WelcomeText>
-              La documentación que pedimos a continuación es <strong>indispensable</strong> para solicitar cualquiera de nuestras hipotecas. 
-              Te recomendamos que la subas cuanto antes ya que sin ella no podremos empezar con los trámites.
-            </WelcomeText>
-            <WelcomeHighlight>
-              ¡Date prisa! tu hipoteca está cada vez más cerca.
-            </WelcomeHighlight>
-          </WelcomeSection>
+        <ContentWrapper>
+          <LeftColumn>
+            {/* Sección de bienvenida */}
+            <WelcomeSection>
+              <WelcomeTitle>
+                {userName}, sube ahora tus documentos y acelera la solicitud de tu hipoteca
+              </WelcomeTitle>
+              <WelcomeText>
+                La documentación que pedimos a continuación es <strong>indispensable</strong> para solicitar cualquiera de nuestras hipotecas. 
+                Te recomendamos que la subas cuanto antes ya que sin ella no podremos empezar con los trámites.
+              </WelcomeText>
+              <WelcomeHighlight>
+                ¡Date prisa! tu hipoteca está cada vez más cerca.
+              </WelcomeHighlight>
+            </WelcomeSection>
 
-          {/* Sección de descarga de documentación */}
-          <DownloadSection>
-            <RecommendedBadge>RECOMENDADO</RecommendedBadge>
-            <DownloadTitle>
-              Descarga la documentación que necesitas de la Seg. Social y la Agencia Tributaria de forma <span className="highlight">fácil y segura</span>
-            </DownloadTitle>
-            <DownloadButton onClick={() => window.open('https://areacliente.iahorro.com', '_blank')}>
-              Descargar documentación
-            </DownloadButton>
-            <DownloadSubtitle>Menos de 5 minutos</DownloadSubtitle>
-          </DownloadSection>
+            {/* Sección de descarga de documentación */}
+            <DownloadSection>
+              <RecommendedBadge>RECOMENDADO</RecommendedBadge>
+              <DownloadTitle>
+                Descarga la documentación que necesitas de la Seg. Social y la Agencia Tributaria de forma <span className="highlight">fácil y segura</span>
+              </DownloadTitle>
+              <DownloadButton onClick={() => window.open('https://areacliente.iahorro.com', '_blank')}>
+                Descargar documentación
+              </DownloadButton>
+              <DownloadSubtitle>Menos de 5 minutos</DownloadSubtitle>
+            </DownloadSection>
 
-          {/* Sección de progreso */}
-          <ProgressSection>
-            <ProgressTitle>Progreso de la documentación</ProgressTitle>
-            <ProgressContainer>
-              <ProgressBarContainer>
-                <ProgressBar progress={progressPercentage} />
-              </ProgressBarContainer>
-              <ProgressText>
-                <span>{uploadedRequiredDocuments} de {totalRequiredDocuments} documentos requeridos</span>
-                <span style={{ color: progressPercentage === 100 ? 'var(--color-success)' : 'var(--color-gray-600)' }}>
-                  {progressPercentage}%
-                </span>
-              </ProgressText>
-            </ProgressContainer>
-          </ProgressSection>
+            {/* Sección de progreso */}
+            <ProgressSection>
+              <ProgressTitle>Progreso de la documentación</ProgressTitle>
+              <ProgressContainer>
+                <ProgressBarContainer>
+                  <ProgressBar progress={progressPercentage} />
+                </ProgressBarContainer>
+                <ProgressText>
+                  <span>{uploadedRequiredDocuments} de {totalRequiredDocuments} documentos requeridos</span>
+                  <span style={{ color: progressPercentage === 100 ? 'var(--color-success)' : 'var(--color-gray-600)' }}>
+                    {progressPercentage}%
+                  </span>
+                </ProgressText>
+              </ProgressContainer>
+            </ProgressSection>
 
-          {/* Secciones de documentos */}
-          {documentSections.map(section => (
-            <DocumentSectionContainer key={section.id}>
-              <DocumentSectionHeader onClick={() => toggleSection(section.id)}>
-                <SectionTitle>
-                  <SectionIcon>{section.icon}</SectionIcon>
-                  {section.title}
-                </SectionTitle>
-                <ToggleButton 
-                  isOpen={openSections[section.id]}
-                  onClick={(e) => {e.stopPropagation(); toggleSection(section.id)}}
-                >
-                  ▼
-                </ToggleButton>
-              </DocumentSectionHeader>
-              
-              <SectionContent isOpen={openSections[section.id]}>
-                {section.documents.map(doc => (
-                  <DocumentCard key={doc.id}>
-                    <DocumentTitle htmlFor={doc.id}>{doc.name}</DocumentTitle>
-                    <DocumentUpload
-                      onFileUpload={handleFileUpload(doc.id)}
-                      onFileRemove={handleFileRemove(doc.id)}
-                    />
-                  </DocumentCard>
-                ))}
-              </SectionContent>
-            </DocumentSectionContainer>
-          ))}
-        </LeftColumn>
+            {/* Sección de documentación necesaria - aparece aquí en móvil/tablet */}
+            <RightColumn>
+              <RequiredDocumentsSection>
+                <RequiredDocumentsTitle>Documentación necesaria</RequiredDocumentsTitle>
+                
+                {/* Doc. personal y laboral */}
+                <DocumentCategory>
+                  <CategoryTitle>Doc. personal y laboral</CategoryTitle>
+                  <DocumentList>
+                    <DocumentListItem className={isDocumentUploaded('vida-laboral') ? 'completed' : ''}>
+                      Vida laboral
+                    </DocumentListItem>
+                    <DocumentListItem className={isDocumentUploaded('contrato') ? 'completed' : ''}>
+                      Contrato
+                    </DocumentListItem>
+                    <DocumentListItem className={isDocumentUploaded('nominas') ? 'completed' : ''}>
+                      Nóminas (3 últimas)
+                    </DocumentListItem>
+                    <DocumentListItem className={isDocumentUploaded('dni-nie') ? 'completed' : ''}>
+                      DNI/NIE
+                    </DocumentListItem>
+                  </DocumentList>
+                </DocumentCategory>
 
-        <RightColumn>
-          {/* Sección de documentación necesaria */}
-          <RequiredDocumentsSection>
-            <RequiredDocumentsTitle>Documentación necesaria</RequiredDocumentsTitle>
-            
-            {/* Doc. personal y laboral */}
-            <DocumentCategory>
-              <CategoryTitle>Doc. personal y laboral</CategoryTitle>
-              <DocumentList>
-                <DocumentListItem className={isDocumentUploaded('vida-laboral') ? 'completed' : ''}>
-                  Vida laboral
-                </DocumentListItem>
-                <DocumentListItem className={isDocumentUploaded('contrato') ? 'completed' : ''}>
-                  Contrato
-                </DocumentListItem>
-                <DocumentListItem className={isDocumentUploaded('nominas') ? 'completed' : ''}>
-                  Nóminas (3 últimas)
-                </DocumentListItem>
-                <DocumentListItem className={isDocumentUploaded('dni-nie') ? 'completed' : ''}>
-                  DNI/NIE
-                </DocumentListItem>
-              </DocumentList>
-            </DocumentCategory>
+                {/* Doc. económica */}
+                <DocumentCategory>
+                  <CategoryTitle>Doc. económica</CategoryTitle>
+                  <DocumentList>
+                    <DocumentListItem className={isDocumentUploaded('recibos-prestamos') ? 'completed' : ''}>
+                      Recibos préstamos
+                    </DocumentListItem>
+                    <DocumentListItem className={isDocumentUploaded('movimientos-bancarios') ? 'completed' : ''}>
+                      Movimientos bancarios
+                    </DocumentListItem>
+                    <DocumentListItem className={isDocumentUploaded('declaracion-renta') ? 'completed' : ''}>
+                      Declaración de la Renta
+                    </DocumentListItem>
+                  </DocumentList>
+                </DocumentCategory>
+              </RequiredDocumentsSection>
+            </RightColumn>
 
-            {/* Doc. económica */}
-            <DocumentCategory>
-              <CategoryTitle>Doc. económica</CategoryTitle>
-              <DocumentList>
-                <DocumentListItem className={isDocumentUploaded('recibos-prestamos') ? 'completed' : ''}>
-                  Recibos préstamos
-                </DocumentListItem>
-                <DocumentListItem className={isDocumentUploaded('movimientos-bancarios') ? 'completed' : ''}>
-                  Movimientos bancarios
-                </DocumentListItem>
-                <DocumentListItem className={isDocumentUploaded('declaracion-renta') ? 'completed' : ''}>
-                  Declaración de la Renta
-                </DocumentListItem>
-              </DocumentList>
-            </DocumentCategory>
-          </RequiredDocumentsSection>
-        </RightColumn>
+            {/* Secciones de documentos */}
+            {documentSections.map(section => (
+              <DocumentSectionContainer key={section.id}>
+                <DocumentSectionHeader onClick={() => toggleSection(section.id)}>
+                  <SectionTitle>
+                    <SectionIcon>{section.icon}</SectionIcon>
+                    {section.title}
+                  </SectionTitle>
+                  <ToggleButton 
+                    isOpen={openSections[section.id]}
+                    onClick={(e) => {e.stopPropagation(); toggleSection(section.id)}}
+                  >
+                    ▼
+                  </ToggleButton>
+                </DocumentSectionHeader>
+                
+                <SectionContent isOpen={openSections[section.id]}>
+                  {section.documents.map(doc => (
+                    <DocumentCard key={doc.id}>
+                      <DocumentTitle htmlFor={doc.id}>{doc.name}</DocumentTitle>
+                      <DocumentUpload
+                        onFileUpload={handleFileUpload(doc.id)}
+                        onFileRemove={handleFileRemove(doc.id)}
+                      />
+                    </DocumentCard>
+                  ))}
+                </SectionContent>
+              </DocumentSectionContainer>
+            ))}
+          </LeftColumn>
+        </ContentWrapper>
       </MainContent>
 
       {/* Footer */}

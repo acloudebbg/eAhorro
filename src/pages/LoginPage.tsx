@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 const LoginContainer = styled.div`
@@ -29,10 +29,11 @@ const LoginHeaderContent = styled.div`
   }
 `
 
-const Logo = styled.div`
+const Logo = styled(Link)`
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  text-decoration: none;
   
   & img {
     height: 40px;
@@ -41,6 +42,10 @@ const Logo = styled.div`
     @media (max-width: 576px) {
       height: 32px;
     }
+  }
+  
+  &:hover {
+    opacity: 0.8;
   }
 `
 
@@ -278,7 +283,7 @@ const LoginPage: React.FC = () => {
     <LoginContainer>
       <LoginHeader>
         <LoginHeaderContent>
-          <Logo>
+          <Logo to="/">
             <img 
               src="https://iahorro.imgix.net/img/general/logo_ia-w.svg?auto=format%2Ccompress&q=75" 
               alt="iAhorro" 

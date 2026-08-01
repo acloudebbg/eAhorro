@@ -194,6 +194,44 @@ const UserSection = styled.div`
   }
 `
 
+const UserInfoDesktop = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: 10px;
+  
+  &:hover {
+    background: var(--color-gray-50);
+  }
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+  
+  & .avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  
+  & .name {
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    white-space: nowrap;
+  }
+`
+
 const LoginButton = styled.a`
   padding: var(--spacing-sm) var(--spacing-lg);
   background: var(--color-primary);
@@ -205,15 +243,46 @@ const LoginButton = styled.a`
   text-decoration: none;
   border: 2px solid var(--color-primary);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   
-  @media (max-width: 992px) {
-    display: none;
+  @media (max-width: 768px) {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: none;
+    background: transparent;
+    color: var(--color-secondary);
+    
+    &.login-btn {
+      background: var(--color-primary);
+      color: var(--color-white);
+      border: 2px solid var(--color-primary);
+    }
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    
+    & > span:not(:first-child) {
+      display: none;
+    }
   }
   
   &:hover {
     background: var(--color-white);
     color: var(--color-primary);
     border-color: var(--color-primary);
+    
+    @media (max-width: 768px) {
+      background: transparent;
+      color: var(--color-secondary);
+      
+      &.login-btn:hover {
+        background: var(--color-primary-dark);
+        color: var(--color-white);
+        border-color: var(--color-primary-dark);
+      }
+    }
   }
 `
 
@@ -457,86 +526,25 @@ const Header: React.FC = () => {
         <UserSection>
           {user ? (
             <>
-              <div style={{
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '10px', 
-                padding: '8px 16px', 
-                borderRadius: '8px', 
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}>
-                <div style={{
-                  width: '36px', 
-                  height: '36px', 
-                  background: 'var(--color-primary)', 
-                  borderRadius: '50%', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  color: 'white', 
-                  fontWeight: '600',
-                  flexShrink: 0
-                }}>
-                  {user.nombre.charAt(0)}
-                </div>
-                <span style={{
-                  fontSize: '0.9rem', 
-                  color: 'var(--color-gray-700)',
-                  whiteSpace: 'nowrap'
-                }}>{user.nombre}</span>
-              </div>
+              <UserInfoDesktop>
+                <div className="avatar">{user.nombre.charAt(0)}</div>
+                <span className="name">{user.nombre}</span>
+              </UserInfoDesktop>
               
-              <LoginButton href="#" onClick={(e) => { e.preventDefault(); logout(); }} style={{ whiteSpace: 'nowrap' }}>
-                Cerrar sesión
+              <LoginButton 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); logout(); }} 
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                <span>👤</span>
+                <span>Cerrar sesión</span>
               </LoginButton>
             </>
           ) : (
-            <LoginButton as={Link} to="/login" style={{ whiteSpace: 'nowrap' }}>
-              Área de usuario
+            <LoginButton as={Link} to="/login" className="login-btn" style={{ whiteSpace: 'nowrap' }}>
+              <span>👤</span>
+              <span>Área de usuario</span>
             </LoginButton>
-          )}
-          
-          {/* Mobile user info */}
-          {user && (
-            <div style={{
-              display: 'none',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              background: 'var(--color-gray-100)'
-            }}
-            >
-              <div style={{
-                width: '32px', 
-                height: '32px', 
-                background: 'var(--color-primary)', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                color: 'white', 
-                fontWeight: '600',
-                fontSize: '0.8rem'
-              }}>
-                {user.nombre.charAt(0)}
-              </div>
-              <button 
-                onClick={(e) => { e.preventDefault(); logout(); }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--color-gray-700)',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                Cerrar
-              </button>
-            </div>
           )}
         </UserSection>
       </HeaderContent>
