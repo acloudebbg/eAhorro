@@ -11,12 +11,21 @@ interface DocumentUploadProps {
 const UploadContainer = styled.div`
   border: 2px dashed var(--color-gray-300);
   border-radius: var(--radius-md);
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg);
   text-align: center;
   cursor: pointer;
   transition: all var(--transition-fast);
   background: var(--color-white);
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-sm);
+    border-width: 1.5px;
+  }
   
   &:hover {
     border-color: var(--color-primary);
@@ -40,6 +49,11 @@ const UploadIcon = styled.div`
   color: var(--color-gray-500);
   margin-bottom: var(--spacing-sm);
   
+  @media (max-width: 576px) {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-xs);
+  }
+  
   &.has-file {
     color: var(--color-success);
   }
@@ -47,8 +61,12 @@ const UploadIcon = styled.div`
 
 const UploadText = styled.p`
   color: var(--color-gray-600);
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
   margin-bottom: var(--spacing-sm);
+  
+  @media (max-width: 576px) {
+    margin-bottom: var(--spacing-xs);
+  }
   
   &.has-file {
     color: var(--color-success);
@@ -57,8 +75,12 @@ const UploadText = styled.p`
 
 const UploadSubtext = styled.p`
   color: var(--color-gray-500);
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 1.3vw, 0.8rem);
   margin: 0;
+  
+  @media (max-width: 576px) {
+    display: none;
+  }
 `
 
 const FileInfo = styled.div`
@@ -70,16 +92,31 @@ const FileInfo = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-sm);
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    text-align: center;
+  }
 `
 
 const FileName = styled.span`
   color: var(--color-success);
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 1.4vw, 0.85rem);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
+  
+  @media (max-width: 768px) {
+    max-width: 180px;
+  }
+  
+  @media (max-width: 576px) {
+    max-width: 100%;
+    font-size: 0.75rem;
+  }
 `
 
 const RemoveButton = styled.button`
@@ -95,6 +132,11 @@ const RemoveButton = styled.button`
     color: var(--color-error);
     opacity: 0.7;
   }
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
 `
 
 const UploadButton = styled.button`
@@ -103,11 +145,21 @@ const UploadButton = styled.button`
   border: none;
   padding: var(--spacing-sm) var(--spacing-lg);
   border-radius: var(--radius-full);
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
   margin-top: var(--spacing-sm);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  @media (max-width: 576px) {
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.85rem;
+  }
   
   &:hover {
     background: var(--color-secondary-dark);
@@ -129,6 +181,14 @@ const StatusIcon = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
+  
+  @media (max-width: 576px) {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+  }
   
   &.uploading {
     background: var(--color-primary-light);

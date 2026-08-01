@@ -20,6 +20,7 @@ export const GlobalStyles = createGlobalStyle`
     --color-secondary-light: #34495e;
     --color-accent: #27ae60;
     --color-accent-light: #2ecc71;
+    --color-accent-dark: #219653;
     --color-warning: #f39c12;
     --color-error: #e74c3c;
     --color-success: #27ae60;
@@ -75,6 +76,14 @@ export const GlobalStyles = createGlobalStyle`
     --container-md: 800px;
     --container-lg: 1200px;
     --container-xl: 1400px;
+    
+    /* Breakpoints */
+    --breakpoint-xs: 480px;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-xxl: 1400px;
   }
 
   /* Base styles */
@@ -293,25 +302,182 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
+  /* Responsive Base Styles */
+  html {
+    font-size: 16px;
+    
+    @media (max-width: 1400px) { font-size: 15.5px; }
+    @media (max-width: 1200px) { font-size: 15px; }
+    @media (max-width: 992px) { font-size: 14.5px; }
+    @media (max-width: 768px) { font-size: 14px; }
+    @media (max-width: 576px) { font-size: 13.5px; }
+    @media (max-width: 480px) { font-size: 13px; }
+  }
+
+  /* Typographic scale - Responsive */
+  h1 { 
+    font-size: clamp(1.75rem, 4vw, 2.5rem); 
+    font-weight: 700;
+  }
+  h2 { 
+    font-size: clamp(1.5rem, 3.5vw, 2rem); 
+    font-weight: 700;
+  }
+  h3 { 
+    font-size: clamp(1.25rem, 3vw, 1.75rem); 
+    font-weight: 600;
+  }
+  h4 { 
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem); 
+    font-weight: 600;
+  }
+  h5 { 
+    font-size: clamp(1rem, 2vw, 1.25rem); 
+  }
+  h6 { 
+    font-size: clamp(0.9rem, 1.8vw, 1rem); 
+  }
+  
+  p {
+    font-size: clamp(0.9rem, 1.8vw, 1rem);
+    line-height: 1.6;
+  }
+
+  /* Container - Responsive */
+  .container {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    
+    @media (max-width: 1400px) { max-width: var(--container-lg); }
+    @media (max-width: 1200px) { max-width: var(--container-md); }
+    @media (max-width: 768px) { 
+      max-width: 100%; 
+      padding: 0 var(--spacing-md);
+    }
+    @media (max-width: 576px) { 
+      padding: 0 var(--spacing-sm);
+    }
+  }
+
+  /* Buttons - Responsive */
+  .btn {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    
+    @media (max-width: 576px) {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      width: 100%;
+    }
+  }
+
+  /* Cards - Responsive */
+  .card {
+    padding: var(--spacing-xl);
+    
+    @media (max-width: 768px) {
+      padding: var(--spacing-lg);
+    }
+    @media (max-width: 576px) {
+      padding: var(--spacing-md);
+    }
+  }
+
+  /* Form elements - Responsive */
+  input, select, textarea {
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    padding: var(--spacing-sm) var(--spacing-md);
+    
+    @media (max-width: 576px) {
+      padding: var(--spacing-xs) var(--spacing-sm);
+    }
+  }
+
+  /* Images - Responsive */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Tables - Responsive */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    @media (max-width: 768px) {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+
+  /* Utility classes for responsive */
+  .d-none { display: none !important; }
+  .d-block { display: block !important; }
+  .d-flex { display: flex !important; }
+  .flex-column { flex-direction: column !important; }
+  .w-100 { width: 100% !important; }
+  .text-center { text-align: center; }
+  
+  /* Mobile-only and Desktop-only classes */
+  .d-mobile { display: none !important; }
+  .d-desktop { display: block !important; }
+  
+  @media (max-width: 992px) {
+    .d-mobile { display: block !important; }
+    .d-desktop { display: none !important; }
+  }
+  
+  /* Tablet-only classes */
+  .d-tablet { display: none !important; }
+  
+  @media (min-width: 769px) and (max-width: 992px) {
+    .d-tablet { display: block !important; }
+  }
+  
+  /* Client area mobile adjustments */
+  .client-mobile {
+    display: none;
+  }
+  
+  @media (max-width: 992px) {
+    .client-mobile {
+      display: block;
+    }
+  }
+
+  /* Responsive adjustments for specific breakpoints */
+  @media (max-width: 480px) {
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    
+    section {
+      padding: var(--spacing-xl) 0;
+    }
+  }
+
+  @media (max-width: 576px) {
     h1 { font-size: 2rem; }
     h2 { font-size: 1.75rem; }
     h3 { font-size: 1.5rem; }
-    
+  }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 2.25rem; }
+    h2 { font-size: 1.85rem; }
+    h3 { font-size: 1.6rem; }
+  }
+
+  @media (max-width: 992px) {
+    /* Tablet landscape */
     .container {
       padding: 0 var(--spacing-md);
     }
-    
-    /* Mobile adjustments for client area */
-    .client-mobile {
-      display: none;
-    }
-    
-    @media (max-width: 992px) {
-      .client-mobile {
-        display: block;
-      }
-    }
+  }
+
+  @media (max-width: 1200px) {
+    /* Small desktop */
   }
 `

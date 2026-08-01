@@ -7,12 +7,35 @@ const FooterContainer = styled.footer`
   color: var(--color-white);
   padding: var(--spacing-2xl) 0 var(--spacing-xl);
   margin-top: var(--spacing-2xl);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-xl) 0 var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+  }
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-lg) 0 var(--spacing-md);
+    margin-top: var(--spacing-lg);
+  }
 `
 
 const FooterContent = styled.div`
-  max-width: 1400px;
+  max-width: var(--container-xl);
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
+  
+  @media (max-width: 1400px) {
+    max-width: var(--container-lg);
+  }
+  @media (max-width: 1200px) {
+    max-width: var(--container-md);
+  }
+  @media (max-width: 768px) {
+    padding: 0 var(--spacing-md);
+  }
+  @media (max-width: 576px) {
+    padding: 0 var(--spacing-sm);
+  }
 `
 
 const FooterTop = styled.div`
@@ -20,15 +43,37 @@ const FooterTop = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-xl);
   margin-bottom: var(--spacing-2xl);
+  
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-lg);
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
 `
 
 const FooterSection = styled.div`
   & h4 {
     color: var(--color-white);
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 1.8vw, 1.1rem);
     margin-bottom: var(--spacing-lg);
     position: relative;
     padding-bottom: var(--spacing-sm);
+    
+    @media (max-width: 576px) {
+      font-size: 1rem;
+      margin-bottom: var(--spacing-md);
+    }
     
     &::after {
       content: '';
@@ -38,22 +83,38 @@ const FooterSection = styled.div`
       width: 50px;
       height: 2px;
       background: var(--color-primary);
+      
+      @media (max-width: 576px) {
+        width: 30px;
+        height: 1.5px;
+      }
     }
   }
   
   & ul {
     list-style: none;
+    padding: 0;
+    margin: 0;
   }
   
   & li {
     margin-bottom: var(--spacing-sm);
+    
+    @media (max-width: 576px) {
+      margin-bottom: var(--spacing-xs);
+    }
   }
   
   & a {
     color: var(--color-gray-300);
-    font-size: 0.9rem;
+    font-size: clamp(0.85rem, 1.4vw, 0.9rem);
     transition: color var(--transition-fast);
     text-decoration: none;
+    display: block;
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+    }
     
     &:hover {
       color: var(--color-primary);
@@ -64,17 +125,36 @@ const FooterSection = styled.div`
 const FooterBrand = styled.div`
   margin-bottom: var(--spacing-lg);
   
+  @media (max-width: 768px) {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+  }
+  
   & img {
     height: 60px;
     width: auto;
     margin-bottom: var(--spacing-md);
+    
+    @media (max-width: 768px) {
+      height: 45px;
+      margin: 0 auto var(--spacing-md);
+    }
+    
+    @media (max-width: 576px) {
+      height: 35px;
+    }
   }
   
   & p {
     color: var(--color-gray-300);
-    font-size: 0.9rem;
+    font-size: clamp(0.85rem, 1.4vw, 0.9rem);
     line-height: 1.6;
     margin-bottom: var(--spacing-md);
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+    }
   }
   
   & strong {
@@ -88,6 +168,16 @@ const Certifications = styled.div`
   align-items: center;
   margin-top: var(--spacing-md);
   flex-wrap: wrap;
+  justify-content: center;
+  
+  @media (max-width: 768px) {
+    gap: var(--spacing-md);
+  }
+  
+  @media (max-width: 576px) {
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+  }
   
   & a {
     text-decoration: none;
@@ -97,6 +187,14 @@ const Certifications = styled.div`
     height: 40px;
     opacity: 0.7;
     transition: opacity var(--transition-fast);
+    
+    @media (max-width: 768px) {
+      height: 30px;
+    }
+    
+    @media (max-width: 576px) {
+      height: 25px;
+    }
     
     &:hover {
       opacity: 1;
@@ -108,6 +206,12 @@ const SocialLinks = styled.div`
   display: flex;
   gap: var(--spacing-md);
   margin-top: var(--spacing-lg);
+  justify-content: flex-start;
+  
+  @media (max-width: 768px) {
+    gap: var(--spacing-sm);
+    justify-content: center;
+  }
   
   & a {
     display: flex;
@@ -121,6 +225,18 @@ const SocialLinks = styled.div`
     font-size: 1.2rem;
     transition: all var(--transition-fast);
     text-decoration: none;
+    
+    @media (max-width: 768px) {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
+    }
+    
+    @media (max-width: 576px) {
+      width: 30px;
+      height: 30px;
+      font-size: 0.9rem;
+    }
     
     &:hover {
       background: var(--color-primary);
@@ -141,23 +257,47 @@ const FooterBottom = styled.div`
     justify-content: space-between;
     align-items: center;
   }
+  
+  @media (max-width: 576px) {
+    padding-top: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
 `
 
 const Copyright = styled.p`
   color: var(--color-gray-400);
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 1.3vw, 0.85rem);
+  
+  @media (max-width: 576px) {
+    font-size: 0.75rem;
+    text-align: center;
+  }
 `
 
 const LegalLinks = styled.div`
   display: flex;
   gap: var(--spacing-lg);
   flex-wrap: wrap;
+  justify-content: center;
+  
+  @media (min-width: 768px) {
+    justify-content: flex-end;
+  }
+  
+  @media (max-width: 576px) {
+    gap: var(--spacing-sm);
+    font-size: 0.75rem;
+  }
   
   & a {
     color: var(--color-gray-400);
-    font-size: 0.85rem;
+    font-size: clamp(0.75rem, 1.2vw, 0.85rem);
     transition: color var(--transition-fast);
     text-decoration: none;
+    
+    @media (max-width: 576px) {
+      font-size: 0.75rem;
+    }
     
     &:hover {
       color: var(--color-primary);
@@ -170,14 +310,22 @@ const ContactInfo = styled.div`
   
   & h4 {
     color: var(--color-white);
-    font-size: 1rem;
+    font-size: clamp(0.95rem, 1.6vw, 1rem);
     margin-bottom: var(--spacing-sm);
+    
+    @media (max-width: 576px) {
+      font-size: 0.9rem;
+    }
   }
   
   & p {
     color: var(--color-gray-300);
-    font-size: 0.9rem;
+    font-size: clamp(0.85rem, 1.4vw, 0.9rem);
     margin-bottom: var(--spacing-xs);
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+    }
   }
   
   & a {

@@ -23,6 +23,10 @@ const LoginHeaderContent = styled.div`
   max-width: var(--container-xl);
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
+  
+  @media (max-width: 768px) {
+    padding: 0 var(--spacing-md);
+  }
 `
 
 const Logo = styled.div`
@@ -33,6 +37,10 @@ const Logo = styled.div`
   & img {
     height: 40px;
     width: auto;
+    
+    @media (max-width: 576px) {
+      height: 32px;
+    }
   }
 `
 
@@ -42,6 +50,18 @@ const LoginMain = styled.main`
   align-items: center;
   justify-content: center;
   padding: var(--spacing-2xl);
+  
+  @media (max-width: 992px) {
+    padding: var(--spacing-xl);
+  }
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg);
+  }
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-md);
+  }
 `
 
 const LoginCard = styled.div`
@@ -52,33 +72,55 @@ const LoginCard = styled.div`
   max-width: 450px;
   width: 100%;
   text-align: center;
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-xl);
+    margin: 0 var(--spacing-sm);
+  }
 `
 
 const LoginTitle = styled.h1`
-  font-size: 1.75rem;
+  font-size: clamp(1.5rem, 3.5vw, 1.75rem);
   color: var(--color-secondary);
   margin-bottom: var(--spacing-md);
   font-weight: 700;
+  
+  @media (max-width: 576px) {
+    font-size: 1.5rem;
+  }
 `
 
 const LoginSubtitle = styled.p`
   color: var(--color-gray-600);
   margin-bottom: var(--spacing-xl);
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 1.7vw, 0.95rem);
   line-height: 1.6;
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-lg);
+  }
 `
 
 const FormGroup = styled.div`
   margin-bottom: var(--spacing-lg);
   text-align: left;
+  
+  @media (max-width: 576px) {
+    margin-bottom: var(--spacing-md);
+  }
 `
 
 const Label = styled.label`
   display: block;
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
   font-weight: 500;
   color: var(--color-secondary);
   margin-bottom: var(--spacing-xs);
+  
+  @media (max-width: 576px) {
+    font-size: 0.85rem;
+  }
 `
 
 const Input = styled.input`
@@ -86,9 +128,13 @@ const Input = styled.input`
   padding: var(--spacing-sm) var(--spacing-md);
   border: 2px solid var(--color-gray-300);
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: clamp(0.95rem, 1.6vw, 1rem);
   transition: border-color var(--transition-fast);
   color: var(--color-gray-800);
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-sm);
+  }
   
   &:focus {
     outline: none;
@@ -108,10 +154,14 @@ const SubmitButton = styled.button`
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: clamp(0.95rem, 1.6vw, 1rem);
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
   
   &:hover {
     background: var(--color-primary-dark);
@@ -128,10 +178,14 @@ const SubmitButton = styled.button`
 
 const ErrorMessage = styled.div`
   color: var(--color-error);
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 1.3vw, 0.85rem);
   margin-top: var(--spacing-xs);
   text-align: left;
   min-height: 20px;
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+  }
 `
 
 const LoginHelp = styled.div`
@@ -139,10 +193,19 @@ const LoginHelp = styled.div`
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--color-gray-200);
   
+  @media (max-width: 576px) {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+  }
+  
   & p {
-    font-size: 0.85rem;
+    font-size: clamp(0.8rem, 1.3vw, 0.85rem);
     color: var(--color-gray-600);
     margin-bottom: var(--spacing-sm);
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+    }
   }
   
   & a {
@@ -167,6 +230,11 @@ const LanguageSelector = styled.div`
     font-size: 0.85rem;
     background: var(--color-white);
     cursor: pointer;
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+      padding: var(--spacing-xs);
+    }
   }
 `
 

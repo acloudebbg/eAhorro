@@ -17,10 +17,25 @@ const HeaderContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px;
+  max-width: var(--container-xl);
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
   height: 80px;
+  
+  @media (max-width: 1400px) {
+    max-width: var(--container-lg);
+  }
+  @media (max-width: 1200px) {
+    max-width: var(--container-md);
+  }
+  @media (max-width: 992px) {
+    padding: 0 var(--spacing-md);
+    height: 60px;
+  }
+  @media (max-width: 768px) {
+    padding: 0 var(--spacing-sm);
+    height: 55px;
+  }
 `
 
 const Logo = styled(Link)`
@@ -28,10 +43,19 @@ const Logo = styled(Link)`
   align-items: center;
   gap: var(--spacing-sm);
   text-decoration: none;
+  flex-shrink: 0;
   
   & img {
     height: 50px;
     width: auto;
+    
+    @media (max-width: 992px) {
+      height: 40px;
+    }
+    
+    @media (max-width: 576px) {
+      height: 32px;
+    }
   }
 `
 
@@ -59,7 +83,7 @@ const NavItem = styled.li`
 `
 
 const NavLink = styled(Link)`
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 1.4vw, 0.95rem);
   font-weight: 500;
   color: var(--color-secondary);
   padding: var(--spacing-sm) var(--spacing-md);
@@ -70,6 +94,11 @@ const NavLink = styled(Link)`
   align-items: center;
   gap: var(--spacing-xs);
   border-radius: var(--radius-md);
+  white-space: nowrap;
+  
+  @media (max-width: 1200px) {
+    font-size: 0.9rem;
+  }
   
   &:hover {
     color: var(--color-primary);
@@ -95,6 +124,10 @@ const NavLink = styled(Link)`
   & .dropdown-arrow {
     font-size: 0.7rem;
     color: var(--color-gray-500);
+    
+    @media (max-width: 1200px) {
+      display: none;
+    }
   }
 `
 
@@ -119,17 +152,26 @@ const DropdownMenu = styled.div`
     visibility: visible;
     transform: translateY(0);
   }
+  
+  @media (max-width: 1200px) {
+    min-width: 200px;
+  }
 `
 
 const DropdownItem = styled(Link)`
   display: block;
   padding: var(--spacing-sm) var(--spacing-lg);
   color: var(--color-gray-700);
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.3vw, 0.9rem);
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
   text-decoration: none;
   white-space: nowrap;
+  
+  @media (max-width: 1200px) {
+    font-size: 0.85rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
   
   &:hover {
     background: var(--color-primary-light);
@@ -146,6 +188,10 @@ const UserSection = styled.div`
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  
+  @media (max-width: 768px) {
+    gap: var(--spacing-sm);
+  }
 `
 
 const LoginButton = styled.a`
@@ -154,10 +200,15 @@ const LoginButton = styled.a`
   color: var(--color-white);
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.4vw, 0.9rem);
   transition: all var(--transition-fast);
   text-decoration: none;
   border: 2px solid var(--color-primary);
+  white-space: nowrap;
+  
+  @media (max-width: 992px) {
+    display: none;
+  }
   
   &:hover {
     background: var(--color-white);
@@ -177,6 +228,11 @@ const MobileMenuButton = styled.button`
   
   @media (max-width: 992px) {
     display: block;
+    
+    @media (max-width: 576px) {
+      font-size: 1.3rem;
+      padding: var(--spacing-xs);
+    }
   }
 `
 
@@ -194,6 +250,11 @@ const MobileNav = styled(Nav)`
   
   @media (min-width: 993px) {
     display: none !important;
+  }
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-md);
+    gap: var(--spacing-xs);
   }
 `
 
@@ -396,20 +457,86 @@ const Header: React.FC = () => {
         <UserSection>
           {user ? (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>
-                <div style={{ width: '36px', height: '36px', background: 'var(--color-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '600' }}>
+              <div style={{
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '10px', 
+                padding: '8px 16px', 
+                borderRadius: '8px', 
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}>
+                <div style={{
+                  width: '36px', 
+                  height: '36px', 
+                  background: 'var(--color-primary)', 
+                  borderRadius: '50%', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: 'white', 
+                  fontWeight: '600',
+                  flexShrink: 0
+                }}>
                   {user.nombre.charAt(0)}
                 </div>
-                <span style={{ fontSize: '0.9rem', color: 'var(--color-gray-700)' }}>{user.nombre}</span>
+                <span style={{
+                  fontSize: '0.9rem', 
+                  color: 'var(--color-gray-700)',
+                  whiteSpace: 'nowrap'
+                }}>{user.nombre}</span>
               </div>
-              <LoginButton href="#" onClick={(e) => { e.preventDefault(); logout(); }}>
+              
+              <LoginButton href="#" onClick={(e) => { e.preventDefault(); logout(); }} style={{ whiteSpace: 'nowrap' }}>
                 Cerrar sesión
               </LoginButton>
             </>
           ) : (
-            <LoginButton as={Link} to="/login">
+            <LoginButton as={Link} to="/login" style={{ whiteSpace: 'nowrap' }}>
               Área de usuario
             </LoginButton>
+          )}
+          
+          {/* Mobile user info */}
+          {user && (
+            <div style={{
+              display: 'none',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              background: 'var(--color-gray-100)'
+            }}
+            >
+              <div style={{
+                width: '32px', 
+                height: '32px', 
+                background: 'var(--color-primary)', 
+                borderRadius: '50%', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                color: 'white', 
+                fontWeight: '600',
+                fontSize: '0.8rem'
+              }}>
+                {user.nombre.charAt(0)}
+              </div>
+              <button 
+                onClick={(e) => { e.preventDefault(); logout(); }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--color-gray-700)',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
           )}
         </UserSection>
       </HeaderContent>

@@ -77,6 +77,9 @@ const ClientHeader = styled.header`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   padding: var(--spacing-md) 0;
   border-bottom: 1px solid var(--color-gray-200);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 `
 
 const ClientHeaderContent = styled.div`
@@ -86,12 +89,28 @@ const ClientHeaderContent = styled.div`
   max-width: var(--container-xl);
   margin: 0 auto;
   padding: 0 var(--spacing-lg);
+  
+  @media (max-width: 992px) {
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-md);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0 var(--spacing-sm);
+  }
 `
 
 const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
+  
+  @media (max-width: 768px) {
+    order: 1;
+    width: 100%;
+    justify-content: space-between;
+  }
 `
 
 const Logo = styled.div`
@@ -102,6 +121,10 @@ const Logo = styled.div`
   & img {
     height: 40px;
     width: auto;
+    
+    @media (max-width: 576px) {
+      height: 32px;
+    }
   }
 `
 
@@ -109,6 +132,14 @@ const HeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  
+  @media (max-width: 768px) {
+    order: 3;
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
 `
 
 const UserInfo = styled.div`
@@ -118,6 +149,11 @@ const UserInfo = styled.div`
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-md);
   cursor: pointer;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background: var(--color-gray-50);
+  }
   
   & .avatar {
     width: 36px;
@@ -129,11 +165,22 @@ const UserInfo = styled.div`
     justify-content: center;
     color: white;
     font-weight: 600;
+    flex-shrink: 0;
+    
+    @media (max-width: 576px) {
+      width: 32px;
+      height: 32px;
+      font-size: 0.8rem;
+    }
   }
   
   & .name {
     font-size: 0.9rem;
     color: var(--color-gray-700);
+    
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
 `
 
@@ -150,9 +197,19 @@ const CloseSessionButton = styled.button`
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  white-space: nowrap;
   
   &:hover {
     background: var(--color-gray-200);
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    
+    &::before {
+      display: none;
+    }
   }
 `
 
@@ -168,6 +225,15 @@ const LanguageSelector = styled.div`
     font-size: 0.85rem;
     background: var(--color-white);
     cursor: pointer;
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+      padding: var(--spacing-xs);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    order: 2;
   }
 `
 
@@ -182,27 +248,56 @@ const MyAccountLink = styled.a`
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  white-space: nowrap;
+  transition: all var(--transition-fast);
   
   &:hover {
     background: var(--color-accent-dark);
+  }
+  
+  @media (max-width: 768px) {
+    display: none;
   }
 `
 
 const MainContent = styled.main`
   flex: 1;
   display: flex;
+  flex-direction: column;
   max-width: var(--container-xl);
   margin: 0 auto;
   padding: var(--spacing-xl);
   gap: var(--spacing-xl);
   width: 100%;
+  
+  @media (max-width: 992px) {
+    padding: var(--spacing-lg);
+  }
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-sm);
+  }
 `
 
 const LeftColumn = styled.div`
-  flex: 2;
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+  width: 100%;
+  
+  @media (min-width: 993px) {
+    flex: 2;
+    max-width: 66.666%;
+  }
+  
+  @media (max-width: 992px) {
+    order: 2;
+  }
 `
 
 const RightColumn = styled.div`
@@ -210,6 +305,15 @@ const RightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+  width: 100%;
+  
+  @media (min-width: 993px) {
+    max-width: 33.333%;
+  }
+  
+  @media (max-width: 992px) {
+    order: 1;
+  }
 `
 
 // Sección de bienvenida
@@ -218,26 +322,40 @@ const WelcomeSection = styled.section`
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-sm);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg);
+  }
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-md);
+  }
 `
 
 const WelcomeTitle = styled.h1`
-  font-size: 1.75rem;
+  font-size: clamp(1.4rem, 3vw, 1.75rem);
   color: var(--color-secondary);
   margin-bottom: var(--spacing-md);
   font-weight: 700;
   line-height: 1.3;
+  
+  @media (max-width: 576px) {
+    font-size: 1.3rem;
+  }
 `
 
 const WelcomeText = styled.p`
   color: var(--color-gray-600);
   margin-bottom: var(--spacing-md);
   line-height: 1.6;
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
 `
 
 const WelcomeHighlight = styled.p`
   color: var(--color-secondary);
   font-weight: 600;
   margin: var(--spacing-lg) 0 0 0;
+  font-size: clamp(0.95rem, 1.7vw, 1.05rem);
 `
 
 // Sección de descarga de documentación
@@ -247,6 +365,10 @@ const DownloadSection = styled.div`
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
 `
 
 const RecommendedBadge = styled.span`
@@ -260,10 +382,16 @@ const RecommendedBadge = styled.span`
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
+  
+  @media (max-width: 576px) {
+    font-size: 0.65rem;
+    padding: var(--spacing-xs);
+    right: var(--spacing-sm);
+  }
 `
 
 const DownloadTitle = styled.h3`
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
   color: var(--color-secondary);
   margin-bottom: var(--spacing-sm);
   font-weight: 600;
@@ -271,6 +399,10 @@ const DownloadTitle = styled.h3`
   & .highlight {
     color: var(--color-primary);
     text-decoration: underline;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
   }
 `
 
@@ -281,7 +413,7 @@ const DownloadButton = styled.button`
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 1.7vw, 1rem);
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -290,6 +422,10 @@ const DownloadButton = styled.button`
   &:hover {
     background: var(--color-accent-dark);
   }
+  
+  @media (max-width: 576px) {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
 `
 
 const DownloadSubtitle = styled.p`
@@ -297,6 +433,10 @@ const DownloadSubtitle = styled.p`
   color: var(--color-gray-600);
   text-align: center;
   margin: 0;
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+  }
 `
 
 // Sección de progreso
@@ -305,13 +445,21 @@ const ProgressSection = styled.div`
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
 `
 
 const ProgressTitle = styled.h3`
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
   color: var(--color-secondary);
   margin-bottom: var(--spacing-md);
   font-weight: 600;
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+  }
 `
 
 const ProgressContainer = styled.div`
@@ -325,6 +473,10 @@ const ProgressBarContainer = styled.div`
   border-radius: var(--radius-full);
   overflow: hidden;
   margin-bottom: var(--spacing-sm);
+  
+  @media (max-width: 576px) {
+    height: 6px;
+  }
 `
 
 const ProgressBar = styled.div<{ progress: number }>`
@@ -340,6 +492,13 @@ const ProgressText = styled.div`
   justify-content: space-between;
   font-size: 0.85rem;
   color: var(--color-gray-600);
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    text-align: center;
+  }
 `
 
 // Secciones de documentos
@@ -348,6 +507,10 @@ const DocumentSectionContainer = styled.div`
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
   
   & + & {
     margin-top: var(--spacing-md);
@@ -366,19 +529,32 @@ const DocumentSectionHeader = styled.div`
   &:hover {
     background: transparent;
   }
+  
+  @media (max-width: 576px) {
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
 `
 
 const SectionTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2vw, 1.1rem);
   color: var(--color-secondary);
   font-weight: 600;
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+  }
 `
 
 const SectionIcon = styled.span`
   font-size: 1.2rem;
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+  }
 `
 
 const ToggleButton = styled.button<{ isOpen: boolean }>`
@@ -389,17 +565,32 @@ const ToggleButton = styled.button<{ isOpen: boolean }>`
   color: var(--color-gray-500);
   transition: transform 0.2s ease;
   transform: ${({ isOpen }) => isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+  padding: var(--spacing-xs);
   
   &:hover {
     color: var(--color-secondary);
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
   }
 `
 
 const SectionContent = styled.div<{ isOpen: boolean }>`
   display: ${({ isOpen }) => isOpen ? 'grid' : 'none'};
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-lg);
   animation: fadeIn 0.3s ease;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+  }
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
   
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -411,13 +602,21 @@ const DocumentCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  
+  @media (max-width: 576px) {
+    gap: var(--spacing-xs);
+  }
 `
 
 const DocumentTitle = styled.label`
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
   font-weight: 600;
   color: var(--color-secondary);
   text-align: center;
+  
+  @media (max-width: 576px) {
+    font-size: 0.85rem;
+  }
 `
 
 // Sección de documentación necesaria (sidebar derecho)
@@ -426,13 +625,30 @@ const RequiredDocumentsSection = styled.div`
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
+  
+  @media (max-width: 992px) {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-md);
+  }
 `
 
 const RequiredDocumentsTitle = styled.h3`
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
   color: var(--color-secondary);
   margin-bottom: var(--spacing-lg);
   font-weight: 600;
+  
+  @media (max-width: 576px) {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  @media (max-width: 992px) {
+    margin-bottom: var(--spacing-md);
+  }
 `
 
 const DocumentCategory = styled.div`
@@ -441,13 +657,21 @@ const DocumentCategory = styled.div`
   &:last-child {
     margin-bottom: 0;
   }
+  
+  @media (max-width: 768px) {
+    margin-bottom: var(--spacing-md);
+  }
 `
 
 const CategoryTitle = styled.h4`
-  font-size: 1rem;
+  font-size: clamp(0.95rem, 1.8vw, 1rem);
   color: var(--color-secondary);
   margin-bottom: var(--spacing-md);
   font-weight: 600;
+  
+  @media (max-width: 576px) {
+    font-size: 0.9rem;
+  }
 `
 
 const DocumentList = styled.ul`
@@ -461,9 +685,14 @@ const DocumentListItem = styled.li`
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-xs) 0;
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 1.4vw, 0.85rem);
   color: var(--color-gray-600);
   position: relative;
+  
+  @media (max-width: 576px) {
+    font-size: 0.8rem;
+    gap: var(--spacing-xs);
+  }
   
   &::before {
     content: '';
@@ -472,6 +701,11 @@ const DocumentListItem = styled.li`
     border-radius: 50%;
     background: var(--color-gray-400);
     flex-shrink: 0;
+    
+    @media (max-width: 576px) {
+      width: 5px;
+      height: 5px;
+    }
   }
   
   &.completed::before {
@@ -487,6 +721,11 @@ const DocumentListItem = styled.li`
       width: 2px;
       height: calc(100% + 4px);
       background: var(--color-gray-400);
+      
+      @media (max-width: 576px) {
+        left: 1px;
+        width: 1px;
+      }
     }
   }
   
@@ -501,6 +740,10 @@ const ClientFooter = styled.footer`
   color: var(--color-white);
   padding: var(--spacing-xl) 0;
   margin-top: auto;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg) 0;
+  }
 `
 
 const FooterContent = styled.div`
@@ -510,31 +753,58 @@ const FooterContent = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-xl);
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+    text-align: center;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-md);
+  }
 `
 
 const FooterSection = styled.div`
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-sm);
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 `
 
 const FooterIcon = styled.span`
   font-size: 1.5rem;
   flex-shrink: 0;
+  
+  @media (max-width: 576px) {
+    font-size: 1.2rem;
+  }
 `
 
 const FooterText = styled.div`
   & h4 {
     color: var(--color-white);
-    font-size: 1rem;
+    font-size: clamp(0.95rem, 1.7vw, 1rem);
     margin-bottom: var(--spacing-xs);
     font-weight: 600;
+    
+    @media (max-width: 576px) {
+      font-size: 0.9rem;
+    }
   }
   
   & p {
     color: rgba(255, 255, 255, 0.8);
-    font-size: 0.85rem;
+    font-size: clamp(0.85rem, 1.5vw, 0.85rem);
     line-height: 1.5;
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+    }
   }
 `
 
