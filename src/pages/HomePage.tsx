@@ -2,14 +2,32 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { useUser } from '../context/UserContext'
 import styled from 'styled-components'
+import { BankLogos, Testimonials, ExpertCards, MediaLogos } from '../components/common'
 
 // Styled Components
 const HeroSection = styled.section`
-  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-              url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2070&auto=format&fit=crop') center/cover;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+              url('https://iahorro.imgix.net/_nuxt/image-bg-home_xl.CCYbZhv5.jpg') center/cover;
   color: var(--color-white);
-  padding: var(--spacing-2xl) 0;
+  padding: var(--spacing-3xl) 0;
   text-align: center;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+  }
+  
+  & > * {
+    position: relative;
+    z-index: 2;
+  }
   
   & h1 {
     font-size: 3rem;
@@ -50,6 +68,7 @@ const PrimaryButton = styled(Link)`
   font-size: 1.1rem;
   transition: all var(--transition-fast);
   box-shadow: var(--shadow-md);
+  text-decoration: none;
   
   &:hover {
     background: var(--color-primary-dark);
@@ -60,13 +79,14 @@ const PrimaryButton = styled(Link)`
 
 const SecondaryButton = styled(Link)`
   padding: var(--spacing-md) var(--spacing-2xl);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.2);
   color: var(--color-white);
   border: 2px solid var(--color-white);
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 1.1rem;
   transition: all var(--transition-fast);
+  text-decoration: none;
   
   &:hover {
     background: var(--color-white);
@@ -123,77 +143,40 @@ const BanksSection = styled(Section)`
   background: var(--color-gray-50);
 `
 
-const BanksGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: var(--spacing-lg);
-  align-items: center;
-  justify-items: center;
-  margin-top: var(--spacing-xl);
-  
-  & img {
-    height: 40px;
-    opacity: 0.7;
-    transition: all var(--transition-fast);
-    filter: grayscale(100%);
-    
-    &:hover {
-      opacity: 1;
-      filter: grayscale(0%);
-      transform: scale(1.1);
-    }
-  }
-`
-
-const TestimonialsSection = styled(Section)`
-  background: var(--color-white);
-`
-
-const TestimonialsTitle = styled.h2`
+const BanksTitle = styled.h2`
   text-align: center;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-md);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-secondary);
 `
 
-const TestimonialsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: var(--spacing-xl);
-`
-
-const TestimonialCard = styled.div`
-  background: var(--color-white);
-  padding: var(--spacing-xl);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border-left: 4px solid var(--color-primary);
-  transition: transform var(--transition-fast);
+const CertificationBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--color-gray-100);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-xl);
+  text-align: center;
   
-  &:hover {
-    transform: translateY(-5px);
-  }
-  
-  & .quote {
-    font-size: 1.5rem;
+  & svg {
+    width: 40px;
+    height: 40px;
     color: var(--color-primary);
-    margin-bottom: var(--spacing-md);
   }
   
   & .text {
-    font-style: italic;
-    color: var(--color-gray-700);
-    margin-bottom: var(--spacing-lg);
-    line-height: 1.7;
-  }
-  
-  & .author {
-    font-weight: 600;
-    color: var(--color-secondary);
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  & .rating {
-    color: var(--color-warning);
-    font-size: 1.2rem;
+    & strong {
+      color: var(--color-secondary);
+      display: block;
+    }
+    
+    & span {
+      font-size: 0.85rem;
+      color: var(--color-gray-600);
+    }
   }
 `
 
@@ -239,6 +222,7 @@ const NeedCard = styled.div`
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
+    text-decoration: none;
     
     &::before {
       content: '▶';
@@ -306,6 +290,16 @@ const HomePage: React.FC = () => {
       text: 'Con un sólo paquete de documentos he tenido acceso a todas las ofertas que me interesaban y también a tipos de interés mejores.',
       author: 'Javier de Cruz',
       rating: 5
+    },
+    {
+      text: 'Comunicación transparente, honesta y muy fluida. Te explica todo con gran detalle y pelea hasta el final por conseguir las mejores condiciones para tu hipoteca.',
+      author: 'Oscar Mena',
+      rating: 5
+    },
+    {
+      text: 'Información de calidad y te facilitan mucho el trabajo ya que ellos contactan con los bancos y solo te envían las mejores propuestas en función de tus requerimientos.',
+      author: 'Pablo Hernández',
+      rating: 5
     }
   ]
 
@@ -345,10 +339,15 @@ const HomePage: React.FC = () => {
     }
   ]
 
-  const banks = [
-    'sabadell', 'bankinter', 'santander', 'bbva', 'caixabank', 'openbank',
-    'unicaja', 'evo', 'abanca', 'cajasur', 'kutxabank', 'ibercaja',
-    'caja-rural', 'myinvestor', 'deutsche', 'arquiabanca'
+  const experts = [
+    { name: 'Noelia C.', initial: 'N', image: 'https://iahorro.imgix.net/public/user-photos/expert-defaults/neutral.png?w=160&h=160&auto=format%2Ccompress&q=75' },
+    { name: 'Ivan V.', initial: 'I', image: 'https://iahorro.imgix.net/public/user-photos/P4lDTphWUxqF9sXuVPI7pb8GXkHz6URYQr944ORl.png?w=160&h=160&auto=format%2Ccompress&q=75' },
+    { name: 'Andrea A.', initial: 'A', image: 'https://iahorro.imgix.net/public/user-photos/expert-defaults/neutral.png?w=160&h=160&auto=format%2Ccompress&q=75' },
+    { name: 'Gaspar S.', initial: 'G', image: 'https://iahorro.imgix.net/public/user-photos/eJyLOZuqb7f8MLBZinjwxMXX00KSsV1jrAjDCBH1.png?w=160&h=160&auto=format%2Ccompress&q=75' },
+    { name: 'Carol V.', initial: 'C', image: 'https://iahorro.imgix.net/public/user-photos/home.tyh50z.jpg?w=160&h=160&auto=format%2Ccompress&q=75' },
+    { name: 'Jose E.', initial: 'J', image: 'https://iahorro.imgix.net/public/user-photos/home.nhaska.png?w=160&h=160&auto=format%2Ccompress&q=75' },
+    { name: 'Javier C.', initial: 'J', image: 'https://iahorro.imgix.net/public/user-photos/v2bAsXkoyAFZp4ZumV3pcxMNyRVTk3rJBi3O7jlL.png?w=160&h=160&auto=format%2Ccompress&q=75' },
+    { name: 'Alicia P.', initial: 'A', image: 'https://iahorro.imgix.net/public/user-photos/lg3b9TGj8f4mnEMwNbsgmT1Wybpu7ChKiu3kqmd4.png?w=160&h=160&auto=format%2Ccompress&q=75' },
   ]
 
   return (
@@ -365,7 +364,7 @@ const HomePage: React.FC = () => {
         </Container>
       </HeroSection>
 
-      {/* Benefits Section */}
+      {/* ¿Aun piensas en ir a tu banco? */}
       <Section>
         <Container>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -402,61 +401,35 @@ const HomePage: React.FC = () => {
             </BenefitCard>
           </BenefitsGrid>
           
-          <div style={{ textAlign: 'center', marginTop: '40px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '15px 30px', background: 'var(--color-gray-100)', borderRadius: '8px' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '30px', height: '30px' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <strong style={{ color: 'var(--color-secondary)' }}>Certificada por el Banco de España</strong>
-                <br />
-                <span style={{ fontSize: '0.85rem', color: 'var(--color-gray-600)' }}>como Intermediaria de Crédito Inmobiliario nº D185</span>
-              </div>
+          <CertificationBadge>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="text">
+              <strong>Certificada por el Banco de España</strong>
+              <span>como Intermediaria de Crédito Inmobiliario nº D185</span>
             </div>
-          </div>
+          </CertificationBadge>
         </Container>
       </Section>
 
       {/* Banks Section */}
       <BanksSection>
         <Container>
-          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
-            Conseguimos la mejor hipoteca para ti
-          </h2>
+          <BanksTitle>Conseguimos la mejor hipoteca para ti</BanksTitle>
           <p style={{ textAlign: 'center', color: 'var(--color-gray-600)', marginBottom: '40px' }}>
             Negociamos con los principales bancos para poder conseguirte las mejores condiciones del mercado. <strong>Tú quédate en casa y nosotros lo hacemos por ti.</strong>
           </p>
-          <BanksGrid>
-            {banks.map((bank, index) => (
-              <img key={index} src={`/bancos/${bank}.svg`} alt={bank} />
-            ))}
-          </BanksGrid>
+          <BankLogos showAll={true} />
         </Container>
       </BanksSection>
 
       {/* Testimonials Section */}
-      <TestimonialsSection>
-        <Container>
-          <TestimonialsTitle>Nuestros clientes hablan por nosotros</TestimonialsTitle>
-          <p style={{ textAlign: 'center', color: 'var(--color-gray-600)', marginBottom: '40px' }}>
-            Las opiniones de nuestros clientes satisfechos son la mejor recompensa a nuestro trabajo. Trabajamos día a día por seguir mejorando y hacer felices a nuestros usuarios.
-          </p>
-          <TestimonialsGrid>
-            {testimonials.map((testimonial, index) => (
-              <TestimonialCard key={index}>
-                <span className="quote">"</span>
-                <p className="text">{testimonial.text}</p>
-                <div className="author">{testimonial.author}</div>
-                <div className="rating">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <span key={i}>★</span>
-                  ))}
-                </div>
-              </TestimonialCard>
-            ))}
-          </TestimonialsGrid>
-        </Container>
-      </TestimonialsSection>
+      <Testimonials 
+        testimonials={testimonials}
+        title="Nuestros clientes hablan por nosotros"
+        subtitle="Las opiniones de nuestros clientes satisfechos son la mejor recompensa a nuestro trabajo. Trabajamos día a día por seguir mejorando y hacer felices a nuestros usuarios."
+      />
 
       {/* Needs Section */}
       <NeedsSection>
@@ -484,12 +457,18 @@ const HomePage: React.FC = () => {
         </Container>
       </NeedsSection>
 
+      {/* Experts Section */}
+      <ExpertCards experts={experts} />
+
+      {/* Media Logos Section */}
+      <MediaLogos />
+
       {/* CTA Section */}
       <CTASection>
         <Container>
           <h2>¿Quieres que te llamemos?</h2>
           <p>Si has llegado hasta aquí y quieres que uno de nuestros expertos resuelva tus dudas o te acompañe durante la búsqueda de tu hipoteca, dínoslo y te llamamos.</p>
-          <PrimaryButton to="/contacta-con-iahorro">Llamadme</PrimaryButton>
+          <PrimaryButton to="/contacta-con-iahorro" style={{ color: 'var(--color-white)' }}>Llamadme</PrimaryButton>
         </Container>
       </CTASection>
     </>

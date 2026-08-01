@@ -14,10 +14,15 @@ export const GlobalStyles = createGlobalStyle`
     --color-primary: #00a8e8;
     --color-primary-dark: #008bc4;
     --color-primary-light: #88c9e4;
+    --color-primary-lighter: #cce7f4;
     --color-secondary: #2c3e50;
     --color-secondary-dark: #1a252f;
+    --color-secondary-light: #34495e;
     --color-accent: #27ae60;
     --color-accent-light: #2ecc71;
+    --color-warning: #f39c12;
+    --color-error: #e74c3c;
+    --color-success: #27ae60;
     
     /* Colores neutros */
     --color-white: #ffffff;
@@ -33,8 +38,9 @@ export const GlobalStyles = createGlobalStyle`
     --color-gray-800: #343a40;
     --color-gray-900: #212529;
     
-    /* Tipograf√≠a */
+    /* Tipografa */
     --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-secondary: 'Open Sans', sans-serif;
     
     /* Espaciados */
     --spacing-xs: 0.25rem;
@@ -43,6 +49,7 @@ export const GlobalStyles = createGlobalStyle`
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
     --spacing-2xl: 3rem;
+    --spacing-3xl: 4rem;
     
     /* Border radius */
     --radius-sm: 4px;
@@ -56,11 +63,18 @@ export const GlobalStyles = createGlobalStyle`
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+    --shadow-primary: 0 4px 12px rgba(0, 168, 232, 0.15);
     
     /* Transiciones */
     --transition-fast: 0.15s ease;
     --transition-normal: 0.25s ease;
     --transition-slow: 0.35s ease;
+    
+    /* Tamaos de contenedores */
+    --container-sm: 600px;
+    --container-md: 800px;
+    --container-lg: 1200px;
+    --container-xl: 1400px;
   }
 
   /* Base styles */
@@ -84,12 +98,36 @@ export const GlobalStyles = createGlobalStyle`
     color: var(--color-secondary);
   }
 
-  h1 { font-size: 2.5rem; }
-  h2 { font-size: 2rem; }
-  h3 { font-size: 1.75rem; }
-  h4 { font-size: 1.5rem; }
+  h1 { 
+    font-size: 2.5rem; 
+    font-weight: 700;
+  }
+  h2 { 
+    font-size: 2rem; 
+    font-weight: 700;
+  }
+  h3 { 
+    font-size: 1.75rem; 
+    font-weight: 600;
+  }
+  h4 { 
+    font-size: 1.5rem; 
+    font-weight: 600;
+  }
   h5 { font-size: 1.25rem; }
   h6 { font-size: 1rem; }
+  
+  /* Estilos para secciones comunes */
+  section {
+    padding: var(--spacing-2xl) 0;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+  }
 
   p {
     margin-bottom: var(--spacing-md);
@@ -126,7 +164,7 @@ export const GlobalStyles = createGlobalStyle`
   /* Utility classes */
   .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: var(--container-xl);
     margin: 0 auto;
     padding: 0 var(--spacing-lg);
   }
@@ -135,9 +173,72 @@ export const GlobalStyles = createGlobalStyle`
   .text-primary { color: var(--color-primary); }
   .text-secondary { color: var(--color-secondary); }
   .text-white { color: var(--color-white); }
+  .text-gray-600 { color: var(--color-gray-600); }
   .bg-primary { background-color: var(--color-primary); }
   .bg-secondary { background-color: var(--color-secondary); }
   .bg-white { background-color: var(--color-white); }
+  .bg-gray-50 { background-color: var(--color-gray-50); }
+  
+  /* Estilos para botones */
+  .btn {
+    display: inline-block;
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+  }
+  
+  .btn-primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+    
+    &:hover {
+      background: var(--color-primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary);
+    }
+  }
+  
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    
+    &:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+  }
+  
+  .btn-white {
+    background: var(--color-white);
+    color: var(--color-secondary);
+    border: 2px solid var(--color-white);
+    
+    &:hover {
+      background: transparent;
+      color: var(--color-white);
+    }
+  }
+  
+  /* Estilos para tarjetas */
+  .card {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+  }
   
   /* Animations */
   @keyframes fadeIn {
