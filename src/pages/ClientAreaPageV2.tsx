@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import DocumentUploadV2 from '../components/V2/DocumentUploadV2/DocumentUploadV2'
 import { ValidationResult, DocumentType } from '../components/V2/types'
 import { CONFIDENCE_THRESHOLD } from '../components/V2/constants'
+import { MessagesProvider, MessageIcon, MessagesModal } from '../components/V2/Messages'
 
 // Interfaces para los documentos
 interface DocumentItem {
@@ -182,6 +183,13 @@ const UserInfo = styled.div`
     
     @media (max-width: 768px) {
       display: none;
+    }
+  }
+  
+  & .message-icon {
+    flex-shrink: 0;
+    @media (max-width: 768px) {
+      order: -1;
     }
   }
 `
@@ -813,7 +821,8 @@ const ClientAreaPageV2: React.FC = () => {
 
 
   return (
-    <ClientAreaContainer>
+    <MessagesProvider>
+      <ClientAreaContainer>
       {/* Header */}
       <ClientHeader>
         <ClientHeaderContent>
@@ -840,6 +849,7 @@ const ClientAreaPageV2: React.FC = () => {
             <UserInfo>
               <div className="avatar">{userName.charAt(0)}</div>
               <span className="name">{userName}</span>
+              <MessageIcon />
             </UserInfo>
             <CloseSessionButton onClick={handleLogout}>
               → Cerrar sesión
@@ -999,7 +1009,11 @@ const ClientAreaPageV2: React.FC = () => {
           </FooterSection>
         </FooterContent>
       </ClientFooter>
-    </ClientAreaContainer>
+      </ClientAreaContainer>
+      
+      {/* Modal de mensajes */}
+      <MessagesModal />
+    </MessagesProvider>
   )
 }
 
