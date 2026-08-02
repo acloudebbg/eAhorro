@@ -9,22 +9,22 @@ const Container = styled.div`
   text-align: center;
 `;
 
-const SuccessIcon = styled.div<{ isValid: boolean }>`
+const SuccessIcon = styled.div<{ $isValid: boolean }>`
   font-size: 3rem;
-  color: ${({ isValid }) => (isValid ? COLORS.success : COLORS.error)};
+  color: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
   margin-bottom: var(--spacing-lg);
 `;
 
-const SuccessTitle = styled.h3<{ isValid: boolean }>`
+const SuccessTitle = styled.h3<{ $isValid: boolean }>`
   font-size: 1.2rem;
-  color: ${({ isValid }) => (isValid ? COLORS.success : COLORS.error)};
+  color: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
   margin-bottom: var(--spacing-md);
   font-weight: 600;
 `;
 
-const ConfidenceText = styled.p<{ isValid: boolean }>`
+const ConfidenceText = styled.p<{ $isValid: boolean }>`
   font-size: 1.1rem;
-  color: ${({ isValid }) => (isValid ? COLORS.success : COLORS.error)};
+  color: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
   margin-bottom: var(--spacing-xl);
   font-weight: 600;
 `;
@@ -55,11 +55,11 @@ const ActionButtons = styled.div`
   flex-wrap: wrap;
 `;
 
-const ActionButton = styled.button<{ variant: 'primary' | 'danger' | 'success' }>`
+const ActionButton = styled.button<{ $variant: 'primary' | 'danger' | 'success' }>`
   padding: var(--spacing-md) var(--spacing-xl);
-  background: ${({ variant }) => 
-    variant === 'primary' ? COLORS.captureButton :
-    variant === 'danger' ? COLORS.error :
+  background: ${({ $variant }) => 
+    $variant === 'primary' ? COLORS.captureButton :
+    $variant === 'danger' ? COLORS.error :
     COLORS.success};
   color: white;
   border: none;
@@ -103,15 +103,15 @@ export const Step4Success: React.FC<Props> = ({ result, pdfContent, onRetry, onD
 
   return (
     <Container>
-      <SuccessIcon isValid={isValid}>
+      <SuccessIcon $isValid={isValid}>
         {isValid ? '✓' : '✗'}
       </SuccessIcon>
 
-      <SuccessTitle isValid={isValid}>
+      <SuccessTitle $isValid={isValid}>
         {isValid ? 'Documento validado correctamente' : 'Documento NO válido'}
       </SuccessTitle>
 
-      <ConfidenceText isValid={isValid}>
+      <ConfidenceText $isValid={isValid}>
         Confianza: {result.confianza}%
       </ConfidenceText>
 
@@ -127,14 +127,14 @@ export const Step4Success: React.FC<Props> = ({ result, pdfContent, onRetry, onD
 
       <ActionButtons>
         {!isValid && (
-          <ActionButton variant="danger" onClick={onRetry}>
+          <ActionButton $variant="danger" onClick={onRetry}>
             🔄 Reintentar
           </ActionButton>
         )}
-        <ActionButton variant="danger" onClick={onDelete}>
+        <ActionButton $variant="danger" onClick={onDelete}>
           🗑️ Eliminar y volver a subir
         </ActionButton>
-        <ActionButton variant="success" onClick={onComplete}>
+        <ActionButton $variant="success" onClick={onComplete}>
           ✅ Continuar
         </ActionButton>
       </ActionButtons>

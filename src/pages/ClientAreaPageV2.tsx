@@ -600,8 +600,10 @@ const DocumentListItem = styled.li<{ confidence?: number }>`
   
   &::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: ${({ confidence }) => 
+      confidence && confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
+    height: ${({ confidence }) => 
+      confidence && confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
     border-radius: 50%;
     background: ${({ confidence }) => 
       confidence && confidence >= CONFIDENCE_THRESHOLD ? 'var(--color-success)' :
@@ -610,35 +612,33 @@ const DocumentListItem = styled.li<{ confidence?: number }>`
     flex-shrink: 0;
     
     @media (max-width: 576px) {
-      width: 5px;
-      height: 5px;
+      width: ${({ confidence }) => 
+        confidence && confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
+      height: ${({ confidence }) => 
+        confidence && confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
     }
   }
   
-  &:not(:last-child) {
-    &::after {
-      content: '';
-      position: absolute;
-      left: 2px;
-      top: 100%;
-      width: 2px;
-      height: calc(100% + 4px);
-      background: var(--color-gray-400);
-      
-      @media (max-width: 576px) {
-        left: 1px;
-        width: 1px;
-      }
-    }
-  }
+  // Líneas entre puntos eliminadas por request del usuario
+  // &:not(:last-child) {
+  //   &::after {
+  //     content: '';
+  //     position: absolute;
+  //     left: 2px;
+  //     top: 100%;
+  //     width: 2px;
+  //     height: calc(100% + 4px);
+  //     background: var(--color-gray-400);
+  //   }
+  // }
   
-  &[data-valid="true"]:not(:last-child)::after {
-    background: var(--color-success);
-  }
+  // &[data-valid="true"]:not(:last-child)::after {
+  //   background: var(--color-success);
+  // }
   
-  &[data-valid="false"]:not(:last-child)::after {
-    background: var(--color-error);
-  }
+  // &[data-valid="false"]:not(:last-child)::after {
+  //   background: var(--color-error);
+  // }
 `
 
 // Footer de la página

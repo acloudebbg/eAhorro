@@ -7,6 +7,7 @@ import { Step3Processing } from './Step3Processing/Step3Processing';
 import { Step4Success } from './Step4Success/Step4Success';
 import { DocumentType, ModalStep, ValidationResult, ProcessingState, DocumentOption } from '../../types';
 import { COLORS, DOCUMENT_OPTIONS } from '../../constants';
+import { processAndValidateFile } from '../utils';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -103,77 +104,292 @@ export const DocumentModal: React.FC<Props> = ({
   // Por ahora usamos todas las opciones, pero se puede filtrar por sección
   const allOptions: DocumentOption[] = Object.values(DOCUMENT_OPTIONS);
 
-  // Simular procesamiento completo
-  const simulateProcessing = async (file: File) => {
+  // Procesar archivo y validar con LLM
+  const processFile = async (file: File) => {
+    const overallStartTime = Date.now();
+    console.log('╔══════════════════════════════════════════════════════════════╗');
+    console.log('║  🎯 DOCUMENT MODAL - INICIANDO PROCESAMIENTO           ║');
+    console.log('╚══════════════════════════════════════════════════════════════╝');
+    console.log('📁 Archivo:', file.name);
+    console.log('📄 Tipo MIME:', file.type);
+    console.log('📏 Tamaño:', (file.size / 1024).toFixed(2), 'KB');
+    console.log('🏷️  Tipo de documento:', selectedType || documentType);
+    console.log('⏱️  Hora de inicio:', new Date().toLocaleTimeString());
+    console.log('');
+    
     setProcessingState((prev) => ({ ...prev, status: 'processing' }));
+    setCurrentStep(3); // Asegurar que estamos en el paso 3
 
     try {
-      // Simular OCR
-      for (let i = 0; i <= 100; i += Math.floor(Math.random() * 15) + 5) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        setProcessingState((prev) => ({ ...prev, ocrProgress: Math.min(i, 100) }));
+      // Validar tamaño máximo
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`Archivo demasiado grande. Máximo ${MAX_FILE_SIZE / 1024 / 1024}MB`);
       }
 
-      // Simular conversión a PDF
-      for (let i = 0; i <= 100; i += Math.floor(Math.random() * 20) + 5) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        setProcessingState((prev) => ({ ...prev, pdfProgress: Math.min(i, 100) }));
+      // Validar tipo de archivo
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error(`Tipo de archivo no soportado: ${file.type}`);
       }
 
-      // Simular validación LLM
-      for (let i = 0; i <= 100; i += Math.floor(Math.random() * 10) + 5) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        setProcessingState((prev) => ({ ...prev, llmProgress: Math.min(i, 100) }));
+      console.log('✅ Validaciones previas pasadas');
+      console.log('');
+      
+      // Usar la función de procesamiento completo con progreso
+      const docType = selectedType || documentType;
+      const result = await processAndValidateFile(
+        file,
+        docType,
+        docType,
+        (stage, progress, info) => {
+          const elapsed = ((Date.now() - overallStartTime) / 1000).toFixed(1);
+          console.log(`   ⏳ [${elapsed}s] ${stage}: ${progress}% - ${info || ''}`);
+          
+          // Actualizar el estado de progreso según la etapa
+          switch (stage) {
+            case 'text_extraction':
+              setProcessingState((prev) => ({
+                ...prev,
+                ocrProgress: progress,
+                pdfProgress: progress * 0.5, // PDF progress sigue al OCR
+                status: 'processing',
+              }));
+              break;
+            case 'llm_validation':
+              setProcessingState((prev) => ({
+                ...prev,
+                ocrProgress: 100,
+                pdfProgress: 100,
+                llmProgress: progress,
+                status: 'processing',
+              }));
+              break;
+          }
+        }
+      );
+
+      const totalTime = ((Date.now() - overallStartTime) / 1000).toFixed(2);
+      console.log('');
+      console.log('╔══════════════════════════════════════════════════════════════╗');
+      console.log('║  ✅ PROCESAMIENTO COMPLETADO CON ÉXITO                 ║');
+      console.log('╚══════════════════════════════════════════════════════════════╝');
+      console.log('⏱️  Tiempo total:', totalTime, 'segundos');
+      console.log('📊 Texto extraído:', result.text.length, 'caracteres');
+      console.log('📄 PDF generado:', result.wasConverted ? 'Sí (convertido desde imagen)' : 'No (original)');
+      if (result.usedSimulation) {
+        console.log('🎭 Simulación usada:', result.usedSimulation);
       }
+      console.log('🎯 Resultado:', result.result.respuesta, '(' + result.result.confianza + '%)');
+      console.log('');
 
-      // Generar resultado de validación aleatorio para simulación
-      // En producción esto vendrá de la API real
-      const randomConfidence = Math.floor(Math.random() * 100);
-      const randomResponse: 'SI' | 'NO' = randomConfidence >= 80 ? 'SI' : 'NO';
-
-      const result: ValidationResult = {
-        respuesta: randomResponse,
-        confianza: randomConfidence,
-        documentType: selectedType || documentType,
-        feedback: randomConfidence < 60 ? 'El documento no parece corresponder al tipo seleccionado' : undefined,
-      };
-
-      setValidationResult(result);
-      setPdfContent(`[Preview del contenido del PDF]
-
-Documento: ${selectedType || documentType}
+      // Extraer texto para preview (limitar a 1000 caracteres)
+      const previewText = result.text.substring(0, 1000);
+      const previewContent = `Documento: ${selectedType || documentType}
 Nombre: ${file.name}
 Tamaño: ${(file.size / 1024).toFixed(2)} KB
 Tipo: ${file.type}
 
-Contenido simulado extraído mediante OCR...
+--- Contenido extraído ---
+${previewText}${result.text.length > 1000 ? '...' : ''}
 
-Este es un documento de prueba generado automáticamente.
-La validación ha determinado que ${randomResponse === 'SI' ? 'corresponde' : 'NO corresponde'} al tipo ${selectedType || documentType} con una confianza del ${randomConfidence}%.
+--- Validación LLM ---
+Resultado: ${result.result.respuesta}
+Confianza: ${result.result.confianza}%
+${result.result.feedback ? `Feedback: ${result.result.feedback}` : ''}
 
---- Fin del preview ---`);
+--- Fin del preview ---`;
 
-      setProcessingState((prev) => ({ ...prev, status: 'complete' }));
+      // Actualizar estado
+      setValidationResult(result.result);
+      setPdfContent(previewContent);
+      setSelectedFile(result.pdfFile); // Guardar el PDF final (convertido o original)
+
+      setProcessingState((prev) => ({
+        ...prev,
+        ocrProgress: 100,
+        pdfProgress: 100,
+        llmProgress: 100,
+        status: 'complete',
+      }));
+      
       setCurrentStep(4);
+      
+      console.log('🏁 Paso 4 alcanzado. Listo para mostrar resultados al usuario');
     } catch (error) {
+      const totalTime = ((Date.now() - overallStartTime) / 1000).toFixed(2);
+      console.log('');
+      console.log('╔══════════════════════════════════════════════════════════════╗');
+      console.log('║  ❌ PROCESAMIENTO FALLIDO                               ║');
+      console.log('╚══════════════════════════════════════════════════════════════╝');
+      console.log('⏱️  Tiempo transcurrido:', totalTime, 'segundos');
+      console.error('❌ Error:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al procesar el documento';
+      
       setProcessingState((prev) => ({
         ...prev,
         status: 'error',
-        errorMessage: 'Error al procesar el documento',
+        errorMessage: errorMessage,
+        ocrProgress: 0,
+        pdfProgress: 0,
+        llmProgress: 0,
       }));
+      
+      console.log('');
+      console.log('El usuario verá un mensaje de error en la interfaz');
     }
   };
 
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = async (file: File) => {
+    console.log('📁 Archivo seleccionado:', file.name, file.type, file.size, 'bytes');
     setSelectedFile(file);
-    setCurrentStep(3);
-    simulateProcessing(file);
+    await processFile(file);
   };
 
-  const handleCameraSelect = () => {
-    // En móvil, esto abriría la cámara
-    // Por ahora, simulamos con un mensaje
-    alert('Funcionalidad de cámara: en desarrollo para móvil. Por favor, usa la opción "Seleccionar archivo" o "Arrastra y suelta".');
+  const handleCameraSelect = async () => {
+    try {
+      // Verificar si el navegador soporta MediaDevices
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Tu navegador no soporta acceso a la cámara. Por favor, usa la opción "Seleccionar archivo" o "Arrastra y suelta".');
+        return;
+      }
+      
+      // Solicitar acceso a la cámara
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }, // Cámara trasera
+        audio: false
+      });
+      
+      // Crear elemento de video para mostrar el preview
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      
+      // Crear canvas para capturar la foto
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      
+      if (!context) {
+        stream.getTracks().forEach(track => track.stop());
+        alert('No se pudo crear el canvas para capturar la imagen.');
+        return;
+      }
+      
+      // Crear modal para mostrar la cámara y capturar
+      const cameraModal = document.createElement('div');
+      cameraModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+        padding: 20px;
+      `;
+      
+      const cameraPreview = document.createElement('div');
+      cameraPreview.style.cssText = `
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 20px;
+      `;
+      
+      const videoContainer = document.createElement('div');
+      videoContainer.style.cssText = `
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+      `;
+      video.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+      videoContainer.appendChild(video);
+      cameraPreview.appendChild(videoContainer);
+      
+      const captureButton = document.createElement('button');
+      captureButton.textContent = '📸 Capturar Foto';
+      captureButton.style.cssText = `
+        background: #00a8e8;
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 16px;
+      `;
+      
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = '❌ Cancelar';
+      cancelButton.style.cssText = `
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+      `;
+      
+      // Añadir botones al modal
+      cameraModal.appendChild(cameraPreview);
+      cameraModal.appendChild(captureButton);
+      cameraModal.appendChild(cancelButton);
+      
+      // Añadir modal al body
+      document.body.appendChild(cameraModal);
+      
+      // Esperar a que el video esté listo
+      await new Promise((resolve) => {
+        video.onloadedmetadata = resolve;
+      });
+      
+      // Configurar tamaños
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      // Capturar foto al hacer clic
+      captureButton.onclick = () => {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convertir canvas a File
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            alert('No se pudo capturar la imagen.');
+            return;
+          }
+          
+          // Detener el stream
+          stream.getTracks().forEach(track => track.stop());
+          
+          // Remover modal
+          document.body.removeChild(cameraModal);
+          
+          // Crear archivo
+          const file = new File([blob], `foto_${Date.now()}.jpg`, { type: 'image/jpeg' });
+          
+          // Procesar el archivo
+          await handleFileSelect(file);
+        }, 'image/jpeg', 0.92);
+      };
+      
+      // Cancelar al hacer clic
+      cancelButton.onclick = () => {
+        stream.getTracks().forEach(track => track.stop());
+        document.body.removeChild(cameraModal);
+      };
+      
+    } catch (error) {
+      console.error('Error al acceder a la cámara:', error);
+      alert('No se pudo acceder a la cámara. Por favor, usa la opción "Seleccionar archivo" o "Arrastra y suelta".');
+    }
   };
 
   const handleTypeSelect = (type: DocumentType) => {

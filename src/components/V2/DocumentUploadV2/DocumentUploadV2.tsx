@@ -295,12 +295,19 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
   };
 
   const handleUploadComplete = (result: ValidationResult, file: File | null) => {
+    console.log('🎉 DocumentUploadV2: Subida completada');
+    console.log('📊 Resultado:', result.respuesta, '(' + result.confianza + '%)');
+    console.log('📄 Archivo:', file?.name || 'null');
+    console.log('');
+    
     if (file) {
       setUploadedFile(file);
       setValidationResult(result);
       onUploadComplete(result, file);
     }
     setIsModalOpen(false);
+    
+    console.log('🏁 Modal cerrado. Estado actualizado en el componente padre');
   };
 
   const handleRemove = () => {
@@ -336,6 +343,26 @@ ${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''
   const isValid = validationResult?.respuesta === 'SI' && validationResult?.confianza >= CONFIDENCE_THRESHOLD;
   const hasError = validationResult && !isValid;
   const confidence = validationResult?.confianza;
+
+  // Función para acortar el nombre del archivo
+  const shortenFileName = (name: string, maxLength: number = 30) => {
+    if (name.length <= maxLength) return name;
+    const extension = name.substring(name.lastIndexOf('.'));
+    const baseName = name.substring(0, name.lastIndexOf('.'));
+    const dots = '...';
+    const availableLength = maxLength - extension.length - dots.length;
+    return baseName.substring(availableLength) + dots + extension;
+  };
+
+  // Función para formatear el tipo de archivo
+  const formatFileType = (type: string) => {
+    if (type.startsWith('image/')) return 'Imagen';
+    if (type === 'application/pdf') return 'PDF';
+    if (type.includes('/')) {
+      return type.substring(type.lastIndexOf('/') + 1).toUpperCase();
+    }
+    return type.toUpperCase();
+  };
 
   // Función para obtener icono de archivo según tipo
   const getFileIcon = () => {
@@ -391,10 +418,10 @@ ${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''
           {/* Información del archivo */}
           <FileInfo>
             <FileDetails>
-              <FileName>{uploadedFile.name}</FileName>
+              <FileName title={uploadedFile.name}>{shortenFileName(uploadedFile.name)}</FileName>
               <FileMeta>
                 <span>{(uploadedFile.size / 1024).toFixed(1)} KB</span>
-                <span>{uploadedFile.type}</span>
+                <span>{formatFileType(uploadedFile.type)}</span>
               </FileMeta>
             </FileDetails>
             {confidence !== undefined && (

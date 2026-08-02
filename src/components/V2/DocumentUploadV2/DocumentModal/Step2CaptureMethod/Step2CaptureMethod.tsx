@@ -128,7 +128,8 @@ export const Step2CaptureMethod: React.FC<Props> = ({ onFileSelect, onCameraSele
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept=".pdf,.jpg,.jpeg,.png"
+          accept=".pdf,.jpg,.jpeg,.png,image/*"
+          capture="environment"
         />
 
         <MethodButton onClick={onCameraSelect}>

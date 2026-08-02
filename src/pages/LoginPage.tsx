@@ -328,9 +328,20 @@ const LoginPage: React.FC = () => {
             <SubmitButton 
               type="button" 
               style={{ background: '#4CAF50', marginTop: 'var(--spacing-sm)' }}
-              onClick={() => navigate('/area-cliente-v2')}
+              onClick={() => {
+                if (!email.trim()) {
+                  setError('El correo electrónico es obligatorio')
+                  return
+                }
+                if (!validateEmail(email)) {
+                  setError('Introduce un correo electrónico válido')
+                  return
+                }
+                navigate('/area-cliente-v2')
+              }}
               onMouseEnter={(e) => e.currentTarget.style.background = '#45a049'}
               onMouseLeave={(e) => e.currentTarget.style.background = '#4CAF50'}
+              disabled={!email.trim() || !validateEmail(email)}
             >
               Acceso a nueva área
             </SubmitButton>
