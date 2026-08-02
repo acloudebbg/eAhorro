@@ -324,6 +324,16 @@ const LoginPage: React.FC = () => {
             <SubmitButton type="submit" disabled={isLoading}>
               {isLoading ? 'Enviando...' : 'Enviarme enlace de acceso'}
             </SubmitButton>
+            
+            <SubmitButton 
+              type="button" 
+              style={{ background: '#4CAF50', marginTop: 'var(--spacing-sm)' }}
+              onClick={() => navigate('/area-cliente-v2')}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#45a049'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#4CAF50'}
+            >
+              Acceso a nueva área
+            </SubmitButton>
           </form>
           
           <LoginHelp>

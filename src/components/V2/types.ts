@@ -1,0 +1,68 @@
+// Tipos de documentos para el área de cliente V2
+// Estos tipos representan los diferentes documentos que pueden subirse
+export type DocumentType =
+  | 'vida-laboral'
+  | 'contrato'
+  | 'nominas'
+  | 'dni-nie'
+  | 'recibos-prestamos'
+  | 'movimientos-bancarios'
+  | 'declaracion-renta'
+  | 'nota-simple'
+  | 'tasacion'
+  | 'arras'
+  | 'justificante-ahorros'
+  | 'documentacion-extra';
+
+// Estados del modal de subida de documentos
+export type ModalStep = 1 | 2 | 3 | 4;
+
+// Resultado de validación del LLM
+export interface ValidationResult {
+  respuesta: 'SI' | 'NO';
+  confianza: number; // 0-100
+  documentType: DocumentType;
+  feedback?: string;
+}
+
+// Estado de procesamiento durante la subida
+export interface ProcessingState {
+  ocrProgress: number;      // 0-100
+  pdfProgress: number;      // 0-100
+  llmProgress: number;      // 0-100
+  status: 'idle' | 'processing' | 'error' | 'complete';
+  errorMessage?: string;
+}
+
+// Props para el modal de documento
+export interface DocumentModalProps {
+  documentLabel: string;
+  documentOptions: DocumentOption[];
+  onClose: () => void;
+  onComplete: (result: ValidationResult, file: File | null) => void;
+}
+
+// Opción de documento para el selector
+export interface DocumentOption {
+  id: DocumentType;
+  label: string;
+  icon: string;
+}
+
+// Props para el componente principal DocumentUploadV2
+export interface DocumentUploadV2Props {
+  documentId: string;
+  label: string;
+  documentType: DocumentType;
+  options?: DocumentOption[];
+  onUploadComplete: (result: ValidationResult, file: File) => void;
+  onRemove: () => void;
+}
+
+// Estado de un documento en el área de cliente
+export interface DocumentStatus {
+  file: File | null;
+  validationResult: ValidationResult | null;
+  isValid: boolean; // confianza >= 80
+  confidence: number | null;
+}
