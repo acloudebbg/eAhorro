@@ -58,7 +58,7 @@ const ProgressPercentage = styled.span`
 `;
 
 const ErrorMessage = styled.div`
-  background: #f8d7da;
+  background: ${COLORS.redSoft};
   color: ${COLORS.error};
   padding: var(--spacing-md);
   border-radius: var(--radius-md);

@@ -33,9 +33,9 @@ const MethodButton = styled.button`
   transition: all 0.2s ease;
   
   &:hover {
-    background: #0086c5;
+    background: ${COLORS.blueHover};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 168, 232, 0.2);
+    box-shadow: 0 4px 12px oklch(55% 0.16 235 / 0.2);
   }
   
   .icon {
@@ -48,7 +48,7 @@ const DragDropArea = styled.div<{ $isDragging: boolean }>`
   border-radius: var(--radius-md);
   padding: var(--spacing-2xl);
   text-align: center;
-  background: ${({ $isDragging }) => ($isDragging ? 'rgba(0, 168, 232, 0.1)' : COLORS.documentButtonBg)};
+  background: ${({ $isDragging }) => ($isDragging ? 'oklch(55% 0.16 235 / 0.1)' : COLORS.documentButtonBg)};
   cursor: pointer;
   transition: all 0.2s ease;
   margin-top: var(--spacing-md);

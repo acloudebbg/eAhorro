@@ -77,7 +77,7 @@ const FeedbackText = styled.p`
   font-size: 0.85rem;
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-sm);
-  background: rgba(220, 53, 69, 0.1);
+  background: ${COLORS.redSoft};
   border-radius: var(--radius-sm);
 `;
 

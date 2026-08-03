@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { DocumentModal } from './DocumentModal';
+import { DocumentPreviewModal } from './DocumentPreviewModal';
 import { ValidationResult, DocumentType, DocumentOption, DocumentUploadV2Props } from '../types';
 import { COLORS, DOCUMENT_OPTIONS, CONFIDENCE_THRESHOLD } from '../constants';
 
@@ -29,7 +30,7 @@ const UploadButton = styled.button`
   background: ${COLORS.documentButtonBg};
   color: var(--color-secondary);
   border: 2px dashed ${COLORS.documentButtonBorder};
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -40,7 +41,7 @@ const UploadButton = styled.button`
   gap: var(--spacing-sm);
 
   &:hover {
-    background: #e9ecef;
+    background: ${COLORS.headerTintBg};
     border-color: ${COLORS.stepActive};
     color: ${COLORS.stepActive};
   }
@@ -57,7 +58,7 @@ const FileCard = styled.div<{ $isValid: boolean; $hasError: boolean }>`
     $isValid ? COLORS.success :
     $hasError ? COLORS.error :
     COLORS.documentButtonBorder};
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: white;
   padding: var(--spacing-sm);
   position: relative;
@@ -75,15 +76,22 @@ const FilePreview = styled.div`
   align-items: center;
   justify-content: center;
   padding: var(--spacing-md);
-  background: ${COLORS.documentButtonBg};
-  border-radius: var(--radius-sm);
+  background-color: ${COLORS.documentButtonBg};
+  background-image: repeating-linear-gradient(
+    45deg,
+    ${COLORS.headerTintBg} 0,
+    ${COLORS.headerTintBg} 6px,
+    ${COLORS.documentButtonBg} 6px,
+    ${COLORS.documentButtonBg} 12px
+  );
+  border-radius: ${COLORS.radiusThumbnail};
   margin-bottom: var(--spacing-sm);
   min-height: 80px;
 
   .thumbnail {
     max-width: 100%;
     max-height: 120px;
-    border-radius: var(--radius-sm);
+    border-radius: ${COLORS.radiusThumbnail};
   }
 
   .file-icon {
@@ -184,7 +192,7 @@ const ActionButton = styled.button<{ $variant: 'view' | 'delete' }>`
   color: ${({ $variant }) => ($variant === 'view' ? COLORS.stepActive : COLORS.error)};
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'view' ? 'rgba(0, 168, 232, 0.1)' : 'rgba(220, 53, 69, 0.1)')};
+    background: ${({ $variant }) => ($variant === 'view' ? 'oklch(55% 0.16 235 / 0.1)' : 'oklch(55% 0.19 25 / 0.1)')};
   }
 `;
 
@@ -228,6 +236,7 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
   onRemove,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const thumbnailRef = useRef<string | null>(null);
@@ -324,19 +333,8 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
   };
 
   const handleViewDetails = () => {
-    if (validationResult && uploadedFile) {
-      const details = `
-Detalles del documento:
-
-📄 Nombre: ${uploadedFile.name}
-📊 Tipo: ${validationResult.documentType}
-🎯 Respuesta: ${validationResult.respuesta}
-✅ Confianza: ${validationResult.confianza}%
-${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''}
-📏 Tamaño: ${(uploadedFile.size / 1024).toFixed(2)} KB
-📅 Fecha: ${new Date().toLocaleString()}
-      `;
-      alert(details);
+    if (uploadedFile) {
+      setIsPreviewOpen(true);
     }
   };
 
@@ -455,6 +453,15 @@ ${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''
           initialStep={2}
           onClose={handleModalClose}
           onComplete={handleUploadComplete}
+        />
+      )}
+
+      {isPreviewOpen && uploadedFile && (
+        <DocumentPreviewModal
+          fileName={uploadedFile.name}
+          isImage={!!getThumbnailUrl()}
+          previewUrl={getThumbnailUrl()}
+          onClose={() => setIsPreviewOpen(false)}
         />
       )}
     </UploadContainer>

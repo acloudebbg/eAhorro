@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import DocumentUploadV2 from '../components/V2/DocumentUploadV2/DocumentUploadV2'
 import { ValidationResult, DocumentType } from '../components/V2/types'
-import { CONFIDENCE_THRESHOLD } from '../components/V2/constants'
+import { CONFIDENCE_THRESHOLD, COLORS } from '../components/V2/constants'
 import { MessagesProvider, MessageIcon, MessagesModal } from '../components/V2/Messages'
 
 // Interfaces para los documentos
@@ -72,7 +72,7 @@ const ClientAreaContainer = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-gray-50);
+  background-color: ${COLORS.pageBg};
 `
 
 const ClientHeader = styled.header`
@@ -161,7 +161,7 @@ const UserInfo = styled.div`
   & .avatar {
     width: 36px;
     height: 36px;
-    background: var(--color-primary);
+    background: ${COLORS.blue};
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -249,7 +249,7 @@ const LanguageSelector = styled.div`
 
 const MyAccountLink = styled.a`
   padding: var(--spacing-xs) var(--spacing-md);
-  background: var(--color-accent);
+  background: ${COLORS.green};
   color: var(--color-white);
   border-radius: var(--radius-md);
   font-size: 0.85rem;
@@ -260,9 +260,9 @@ const MyAccountLink = styled.a`
   gap: var(--spacing-xs);
   white-space: nowrap;
   transition: all var(--transition-fast);
-  
+
   &:hover {
-    background: var(--color-accent-dark);
+    background: ${COLORS.greenHover};
   }
   
   @media (max-width: 768px) {
@@ -298,7 +298,7 @@ const WelcomeSection = styled.section`
   background: var(--color-white);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
+  box-shadow: ${COLORS.shadowContainer};
   
   @media (max-width: 768px) {
     padding: var(--spacing-lg);
@@ -311,7 +311,7 @@ const WelcomeSection = styled.section`
 
 const WelcomeTitle = styled.h1`
   font-size: clamp(1.4rem, 3vw, 1.75rem);
-  color: var(--color-secondary);
+  color: ${COLORS.navy};
   margin-bottom: var(--spacing-md);
   font-weight: 700;
   line-height: 1.3;
@@ -329,7 +329,7 @@ const WelcomeText = styled.p`
 `
 
 const WelcomeHighlight = styled.p`
-  color: var(--color-secondary);
+  color: ${COLORS.navy};
   font-weight: 600;
   margin: var(--spacing-lg) 0 0 0;
   font-size: clamp(0.95rem, 1.7vw, 1.05rem);
@@ -337,8 +337,8 @@ const WelcomeHighlight = styled.p`
 
 // Sección de descarga de documentación
 const DownloadSection = styled.div`
-  background: rgba(173, 216, 230, 0.3);
-  border: 2px solid var(--color-primary-light);
+  background: oklch(55% 0.16 235 / 0.08);
+  border: 2px solid ${COLORS.blue};
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   position: relative;
@@ -352,7 +352,7 @@ const RecommendedBadge = styled.span`
   position: absolute;
   top: -10px;
   right: var(--spacing-md);
-  background: var(--color-warning);
+  background: ${COLORS.orange};
   color: var(--color-white);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
@@ -369,12 +369,12 @@ const RecommendedBadge = styled.span`
 
 const DownloadTitle = styled.h3`
   font-size: clamp(1rem, 2.2vw, 1.1rem);
-  color: var(--color-secondary);
+  color: ${COLORS.navy};
   margin-bottom: var(--spacing-sm);
   font-weight: 600;
-  
+
   & .highlight {
-    color: var(--color-primary);
+    color: ${COLORS.blue};
     text-decoration: underline;
   }
   
@@ -386,7 +386,7 @@ const DownloadTitle = styled.h3`
 const DownloadButton = styled.button`
   width: 100%;
   padding: var(--spacing-md);
-  background: var(--color-accent);
+  background: ${COLORS.green};
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
@@ -395,9 +395,9 @@ const DownloadButton = styled.button`
   cursor: pointer;
   transition: all var(--transition-fast);
   margin: var(--spacing-md) 0;
-  
+
   &:hover {
-    background: var(--color-accent-dark);
+    background: ${COLORS.greenHover};
   }
   
   @media (max-width: 576px) {
@@ -416,18 +416,71 @@ const DownloadSubtitle = styled.p`
   }
 `
 
-// Sección de progreso eliminada - código limpio
-// Secciones de documentos
-const DocumentSectionContainer = styled.div`
+// Barra de progreso global de subida de documentos
+const UploadProgressSection = styled.section`
   background: var(--color-white);
   border-radius: var(--radius-lg);
+  box-shadow: ${COLORS.shadowContainer};
   padding: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
-  
+
   @media (max-width: 768px) {
     padding: var(--spacing-md);
   }
-  
+`
+
+const UploadProgressHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+`
+
+const UploadProgressTitle = styled.h3`
+  font-size: clamp(1rem, 2.2vw, 1.1rem);
+  color: ${COLORS.navy};
+  font-weight: 700;
+`
+
+const ProgressBarTrack = styled.div`
+  width: 160px;
+  height: 6px;
+  background: ${COLORS.borderGray};
+  border-radius: var(--radius-full);
+  overflow: hidden;
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+`
+
+const ProgressBarFill = styled.div<{ $percent: number }>`
+  height: 100%;
+  width: ${({ $percent }) => $percent}%;
+  background: ${COLORS.green};
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+`
+
+const ProgressLabel = styled.span`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${COLORS.navy};
+  white-space: nowrap;
+`
+
+// Secciones de documentos
+const DocumentSectionContainer = styled.div`
+  background: var(--color-white);
+  border-radius: ${COLORS.radiusCategory};
+  box-shadow: ${COLORS.shadowContainer};
+  overflow: hidden;
+
   & + & {
     margin-top: var(--spacing-md);
   }
@@ -438,18 +491,40 @@ const DocumentSectionHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--color-gray-200);
-  margin-bottom: var(--spacing-md);
-  
-  &:hover {
-    background: transparent;
-  }
-  
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: ${COLORS.headerTintBg};
+
   @media (max-width: 576px) {
-    padding-bottom: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
   }
+`
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+`
+
+const CategoryStatusDot = styled.span<{ $state: 'none' | 'complete' | 'error' }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${({ $state }) =>
+    $state === 'complete' ? COLORS.green : $state === 'error' ? COLORS.red : 'var(--color-gray-400)'};
+`
+
+const CategoryCountPill = styled.span<{ $state: 'none' | 'complete' | 'error' }>`
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  color: ${({ $state }) =>
+    $state === 'complete' ? COLORS.green : $state === 'error' ? COLORS.red : 'var(--color-gray-600)'};
+  background: ${({ $state }) =>
+    $state === 'complete' ? 'oklch(52% 0.13 155 / 0.12)' : $state === 'error' ? COLORS.redSoft : 'var(--color-gray-100)'};
 `
 
 const SectionTitle = styled.h3`
@@ -457,9 +532,9 @@ const SectionTitle = styled.h3`
   align-items: center;
   gap: var(--spacing-sm);
   font-size: clamp(1rem, 2vw, 1.1rem);
-  color: var(--color-secondary);
+  color: ${COLORS.navy};
   font-weight: 600;
-  
+
   @media (max-width: 576px) {
     font-size: 1rem;
   }
@@ -496,18 +571,20 @@ const SectionContent = styled.div<{ $isOpen: boolean }>`
   display: ${({ $isOpen }) => $isOpen ? 'grid' : 'none'};
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
   animation: fadeIn 0.3s ease;
-  
+
   @media (max-width: 768px) {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--spacing-md);
+    padding: var(--spacing-md);
   }
-  
+
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
     gap: var(--spacing-sm);
   }
-  
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -518,7 +595,7 @@ const DocumentCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  
+
   @media (max-width: 576px) {
     gap: var(--spacing-xs);
   }
@@ -527,131 +604,17 @@ const DocumentCard = styled.div`
 const DocumentTitle = styled.label`
   font-size: clamp(0.85rem, 1.5vw, 0.9rem);
   font-weight: 600;
-  color: var(--color-secondary);
+  color: ${COLORS.navy};
   text-align: center;
-  
+
   @media (max-width: 576px) {
     font-size: 0.85rem;
   }
 `
 
-// Sección de documentación necesaria
-const RequiredDocumentsSection = styled.div`
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
-  width: 100%;
-  
-  @media (max-width: 768px) {
-    padding: var(--spacing-md);
-  }
-`
-
-const RequiredDocumentsTitle = styled.h3`
-  font-size: clamp(1rem, 2.2vw, 1.1rem);
-  color: var(--color-secondary);
-  margin-bottom: var(--spacing-lg);
-  font-weight: 600;
-  
-  @media (max-width: 576px) {
-    font-size: 1rem;
-    margin-bottom: var(--spacing-md);
-  }
-`
-
-const DocumentsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-xl);
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
-  }
-`
-
-const DocumentCategory = styled.div`
-  margin-bottom: 0;
-`
-
-const CategoryTitle = styled.h4`
-  font-size: clamp(0.95rem, 1.8vw, 1rem);
-  color: var(--color-secondary);
-  margin-bottom: var(--spacing-md);
-  font-weight: 600;
-  
-  @media (max-width: 576px) {
-    font-size: 0.9rem;
-  }
-`
-
-const DocumentList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`
-
-const DocumentListItem = styled.li<{ $confidence?: number }>`
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) 0;
-  font-size: clamp(0.8rem, 1.4vw, 0.85rem);
-  color: var(--color-gray-600);
-  position: relative;
-
-  @media (max-width: 576px) {
-    font-size: 0.8rem;
-    gap: var(--spacing-xs);
-  }
-
-  &::before {
-    content: '';
-    width: ${({ $confidence }) =>
-      $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
-    height: ${({ $confidence }) =>
-      $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
-    border-radius: 50%;
-    background: ${({ $confidence }) =>
-      $confidence && $confidence >= CONFIDENCE_THRESHOLD ? 'var(--color-success)' :
-      $confidence ? 'var(--color-error)' :
-      'var(--color-gray-400)'};
-    flex-shrink: 0;
-
-    @media (max-width: 576px) {
-      width: ${({ $confidence }) =>
-        $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
-      height: ${({ $confidence }) =>
-        $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
-    }
-  }
-  
-  // Líneas entre puntos eliminadas por request del usuario
-  // &:not(:last-child) {
-  //   &::after {
-  //     content: '';
-  //     position: absolute;
-  //     left: 2px;
-  //     top: 100%;
-  //     width: 2px;
-  //     height: calc(100% + 4px);
-  //     background: var(--color-gray-400);
-  //   }
-  // }
-  
-  // &[data-valid="true"]:not(:last-child)::after {
-  //   background: var(--color-success);
-  // }
-  
-  // &[data-valid="false"]:not(:last-child)::after {
-  //   background: var(--color-error);
-  // }
-`
-
 // Footer de la página
 const ClientFooter = styled.footer`
-  background: var(--color-secondary);
+  background: ${COLORS.navy};
   color: var(--color-white);
   padding: var(--spacing-xl) 0;
   margin-top: auto;
@@ -735,27 +698,30 @@ const ClientAreaPageV2: React.FC = () => {
     'otros': true
   })
 
-  // Calcular progreso
-  const totalRequiredDocuments = useMemo(() => {
-    return documentSections.reduce((acc, section) => {
-      const requiredDocs = section.documents.filter(d => d.required).length
-      return acc + requiredDocs
-    }, 0)
-  }, [])
+  // Verificar si un documento está subido Y validado
+  const isDocumentUploaded = (docId: string) => {
+    const result = validationResults[docId]
+    return !!result && result.respuesta === 'SI' && result.confianza >= CONFIDENCE_THRESHOLD
+  }
 
-  const uploadedRequiredDocuments = useMemo(() => {
-    let count = 0
+  // Progreso global: se cuenta sobre TODOS los documentos (no solo los obligatorios)
+  const allDocuments = useMemo(() => documentSections.flatMap(s => s.documents), [])
+
+  const completedAllDocuments = useMemo(
+    () => allDocuments.filter(d => isDocumentUploaded(d.id)).length,
+    [allDocuments, uploadedFiles, validationResults]
+  )
+
+  // Contador + estado por categoría (para el punto y el pill del acordeón)
+  const categoryStats = useMemo(() => {
+    const stats: Record<string, { total: number; done: number; state: 'none' | 'complete' | 'error' }> = {}
     documentSections.forEach(section => {
-      section.documents.forEach(doc => {
-        if (doc.required && 
-            uploadedFiles[doc.id] && 
-            validationResults[doc.id]?.respuesta === 'SI' &&
-            validationResults[doc.id]?.confianza >= CONFIDENCE_THRESHOLD) {
-          count++
-        }
-      })
+      const total = section.documents.length
+      const done = section.documents.filter(d => isDocumentUploaded(d.id)).length
+      const hasError = section.documents.some(d => validationResults[d.id]?.respuesta === 'NO')
+      stats[section.id] = { total, done, state: hasError ? 'error' : done === total ? 'complete' : 'none' }
     })
-    return count
+    return stats
   }, [uploadedFiles, validationResults])
 
   // Manejar subida de archivos con validación
@@ -807,18 +773,6 @@ const ClientAreaPageV2: React.FC = () => {
   const handleLogout = () => {
     navigate('/login')
   }
-
-  // Verificar si un documento está subido Y validado
-  const isDocumentUploaded = (docId: string) => {
-    const result = validationResults[docId]
-    return !!result && result.respuesta === 'SI' && result.confianza >= CONFIDENCE_THRESHOLD
-  }
-  
-  // Obtener confianza para un documento
-  const getDocumentConfidence = (docId: string) => {
-    return validationResults[docId]?.confianza
-  }
-
 
   return (
     <MessagesProvider>
@@ -886,83 +840,39 @@ const ClientAreaPageV2: React.FC = () => {
           <DownloadSubtitle>Menos de 5 minutos</DownloadSubtitle>
         </DownloadSection>
 
-        {/* Sección de documentación necesaria */}
-        <RequiredDocumentsSection>
-          <RequiredDocumentsTitle>Documentación necesaria</RequiredDocumentsTitle>
-          
-          <DocumentsGrid>
-            {/* Doc. personal y laboral */}
-            <DocumentCategory>
-              <CategoryTitle>Doc. personal y laboral</CategoryTitle>
-              <DocumentList>
-                <DocumentListItem 
-                  $confidence={getDocumentConfidence('vida-laboral')}
-                  data-valid={isDocumentUploaded('vida-laboral')}
-                >
-                  Vida laboral {getDocumentConfidence('vida-laboral') ? `(${getDocumentConfidence('vida-laboral')}%)` : ''}
-                </DocumentListItem>
-                <DocumentListItem 
-                  $confidence={getDocumentConfidence('contrato')}
-                  data-valid={isDocumentUploaded('contrato')}
-                >
-                  Contrato {getDocumentConfidence('contrato') ? `(${getDocumentConfidence('contrato')}%)` : ''}
-                </DocumentListItem>
-                <DocumentListItem 
-                  $confidence={getDocumentConfidence('nominas')}
-                  data-valid={isDocumentUploaded('nominas')}
-                >
-                  Nóminas (3 últimas) {getDocumentConfidence('nominas') ? `(${getDocumentConfidence('nominas')}%)` : ''}
-                </DocumentListItem>
-                <DocumentListItem 
-                  $confidence={getDocumentConfidence('dni-nie')}
-                  data-valid={isDocumentUploaded('dni-nie')}
-                >
-                  DNI/NIE {getDocumentConfidence('dni-nie') ? `(${getDocumentConfidence('dni-nie')}%)` : ''}
-                </DocumentListItem>
-              </DocumentList>
-            </DocumentCategory>
-
-            {/* Doc. económica */}
-            <DocumentCategory>
-              <CategoryTitle>Doc. económica</CategoryTitle>
-              <DocumentList>
-                <DocumentListItem 
-                  $confidence={getDocumentConfidence('recibos-prestamos')}
-                  data-valid={isDocumentUploaded('recibos-prestamos')}
-                >
-                  Recibos préstamos {getDocumentConfidence('recibos-prestamos') ? `(${getDocumentConfidence('recibos-prestamos')}%)` : ''}
-                </DocumentListItem>
-                <DocumentListItem 
-                  $confidence={getDocumentConfidence('movimientos-bancarios')}
-                  data-valid={isDocumentUploaded('movimientos-bancarios')}
-                >
-                  Movimientos bancarios {getDocumentConfidence('movimientos-bancarios') ? `(${getDocumentConfidence('movimientos-bancarios')}%)` : ''}
-                </DocumentListItem>
-                <DocumentListItem 
-                  $confidence={getDocumentConfidence('declaracion-renta')}
-                  data-valid={isDocumentUploaded('declaracion-renta')}
-                >
-                  Declaración de la Renta {getDocumentConfidence('declaracion-renta') ? `(${getDocumentConfidence('declaracion-renta')}%)` : ''}
-                </DocumentListItem>
-              </DocumentList>
-            </DocumentCategory>
-          </DocumentsGrid>
-        </RequiredDocumentsSection>
+        {/* Barra de progreso global */}
+        <UploadProgressSection>
+          <UploadProgressHeader>
+            <UploadProgressTitle>Sube tus documentos</UploadProgressTitle>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+              <ProgressBarTrack>
+                <ProgressBarFill $percent={(completedAllDocuments / allDocuments.length) * 100} />
+              </ProgressBarTrack>
+              <ProgressLabel>{completedAllDocuments}/{allDocuments.length} completos</ProgressLabel>
+            </div>
+          </UploadProgressHeader>
+        </UploadProgressSection>
 
         {/* Secciones de documentos */}
         {documentSections.map(section => (
           <DocumentSectionContainer key={section.id}>
             <DocumentSectionHeader onClick={() => toggleSection(section.id)}>
               <SectionTitle>
+                <CategoryStatusDot $state={categoryStats[section.id].state} />
                 <SectionIcon>{section.icon}</SectionIcon>
                 {section.title}
               </SectionTitle>
-              <ToggleButton
-                $isOpen={openSections[section.id]}
-                onClick={(e) => {e.stopPropagation(); toggleSection(section.id)}}
-              >
-                ▼
-              </ToggleButton>
+              <HeaderActions>
+                <CategoryCountPill $state={categoryStats[section.id].state}>
+                  {categoryStats[section.id].done}/{categoryStats[section.id].total}
+                </CategoryCountPill>
+                <ToggleButton
+                  $isOpen={openSections[section.id]}
+                  onClick={(e) => {e.stopPropagation(); toggleSection(section.id)}}
+                >
+                  ▼
+                </ToggleButton>
+              </HeaderActions>
             </DocumentSectionHeader>
 
             <SectionContent $isOpen={openSections[section.id]}>

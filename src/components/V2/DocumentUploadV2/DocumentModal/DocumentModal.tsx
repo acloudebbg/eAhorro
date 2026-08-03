@@ -241,7 +241,7 @@ export const DocumentModal: React.FC<Props> = ({
       const captureButton = document.createElement('button');
       captureButton.textContent = '📸 Capturar Foto';
       captureButton.style.cssText = `
-        background: #00a8e8;
+        background: ${COLORS.blue};
         color: white;
         border: none;
         padding: 12px 32px;
@@ -254,7 +254,7 @@ export const DocumentModal: React.FC<Props> = ({
       const cancelButton = document.createElement('button');
       cancelButton.textContent = '❌ Cancelar';
       cancelButton.style.cssText = `
-        background: #dc3545;
+        background: ${COLORS.red};
         color: white;
         border: none;
         padding: 12px 32px;

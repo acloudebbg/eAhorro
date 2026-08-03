@@ -4,19 +4,38 @@
 
 import { DocumentType, DocumentOption } from './types';
 
-// Colores según especificación de diseño
+// Colores según especificación de diseño (paleta Glow Design, restyle de /area-cliente-v2)
 export const COLORS = {
+  green: 'oklch(52% 0.13 155)',
+  greenHover: 'oklch(46% 0.13 155)',
+  navy: 'oklch(28% 0.06 255)',
+  teal: 'oklch(74% 0.14 165)',
+  blue: 'oklch(55% 0.16 235)',
+  blueHover: 'oklch(49% 0.16 235)',
+  red: 'oklch(55% 0.19 25)',
+  redSoft: 'oklch(93% 0.03 25)',
+  orange: 'oklch(72% 0.15 55)',
+  pageBg: 'oklch(97% 0.006 250)',
+  borderGray: 'oklch(92% 0.008 250)',
+  headerTintBg: 'oklch(98% 0.005 250)',
+  radiusCategory: '14px',
+  radiusThumbnail: '9px',
+  shadowContainer: '0 8px 30px rgba(0, 0, 0, 0.12)',
+  shadowModal: '0 20px 60px rgba(0, 0, 0, 0.3)',
+
+  // Claves ya consumidas por el wizard (DocumentModal/StepIndicator/Step1-4),
+  // repuntadas a la nueva paleta sin tocar sus call-sites.
   modalBackground: '#ffffff',
-  stepActive: '#00a8e8',
-  stepInactive: '#e9ecef',
-  captureButton: '#00a8e8',
-  success: '#28a745',
-  error: '#dc3545',
-  progressBar: '#00a8e8',
-  progressBg: '#e9ecef',
-  pdfPreviewBorder: '#00a8e8',
-  documentButtonBg: '#f8f9fa',
-  documentButtonBorder: '#dee2e6',
+  stepActive: 'oklch(55% 0.16 235)',
+  stepInactive: 'oklch(92% 0.008 250)',
+  captureButton: 'oklch(55% 0.16 235)',
+  success: 'oklch(52% 0.13 155)',
+  error: 'oklch(55% 0.19 25)',
+  progressBar: 'oklch(55% 0.16 235)',
+  progressBg: 'oklch(92% 0.008 250)',
+  pdfPreviewBorder: 'oklch(74% 0.14 165)',
+  documentButtonBg: 'oklch(98% 0.005 250)',
+  documentButtonBorder: 'oklch(92% 0.008 250)',
 } as const;
 
 // Pasos del modal de subida

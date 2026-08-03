@@ -38,7 +38,7 @@ const DocumentButton = styled.button<{ $selected: boolean }>`
   color: ${({ $selected }) => ($selected ? 'white' : 'var(--color-secondary)')};
 
   &:hover {
-    background: ${({ $selected }) => ($selected ? COLORS.captureButton : '#e9ecef')};
+    background: ${({ $selected }) => ($selected ? COLORS.captureButton : COLORS.headerTintBg)};
     border-color: ${COLORS.captureButton};
   }
   
