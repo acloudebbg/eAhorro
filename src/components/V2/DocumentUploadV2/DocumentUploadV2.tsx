@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { DocumentModal } from './DocumentModal';
-import { DocumentPreviewModal } from './DocumentPreviewModal';
 import { ValidationResult, DocumentType, DocumentOption, DocumentUploadV2Props } from '../types';
 import { COLORS, DOCUMENT_OPTIONS, CONFIDENCE_THRESHOLD } from '../constants';
 
@@ -151,17 +150,6 @@ const FileName = styled.div`
   margin-bottom: 4px;
 `;
 
-const ConfidenceBadge = styled.span<{ $isValid: boolean }>`
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: white;
-  background: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  margin-left: var(--spacing-xs);
-`;
-
 const FileMeta = styled.div`
   font-size: 0.75rem;
   color: var(--color-gray-500);
@@ -169,30 +157,20 @@ const FileMeta = styled.div`
   gap: var(--spacing-sm);
 `;
 
-const ActionButtons = styled.div`
-  display: flex;
-  gap: var(--spacing-xs);
-  margin-top: var(--spacing-xs);
-  padding-top: var(--spacing-xs);
-  border-top: 1px solid var(--color-gray-200);
-`;
-
-const ActionButton = styled.button<{ $variant: 'view' | 'delete' }>`
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
+const RemoveLink = styled.button`
   background: none;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 500;
+  padding: 0;
+  margin-left: var(--spacing-xs);
+  font-size: 0.7rem;
+  color: ${COLORS.error};
+  text-decoration: underline;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: ${({ $variant }) => ($variant === 'view' ? COLORS.stepActive : COLORS.error)};
+  white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'view' ? 'oklch(55% 0.16 235 / 0.1)' : 'oklch(55% 0.19 25 / 0.1)')};
+    opacity: 0.75;
   }
 `;
 
@@ -236,7 +214,6 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
   onRemove,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const thumbnailRef = useRef<string | null>(null);
@@ -332,15 +309,15 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
     saveDocumentState(documentId, null);
   };
 
-  const handleViewDetails = () => {
-    if (uploadedFile) {
-      setIsPreviewOpen(true);
+  const handleOpenInNewTab = () => {
+    const url = getFileUrl();
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
 
   const isValid = validationResult?.respuesta === 'SI' && validationResult?.confianza >= CONFIDENCE_THRESHOLD;
   const hasError = !!validationResult && !isValid;
-  const confidence = validationResult?.confianza;
 
   // Función para acortar el nombre del archivo
   const shortenFileName = (name: string, maxLength: number = 30) => {
@@ -371,20 +348,22 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
     return '📁';
   };
 
-  // Función para obtener URL de miniatura (para imágenes)
-  const getThumbnailUrl = () => {
-    if (!uploadedFile || !uploadedFile.type.startsWith('image/')) return null;
-    
+  // Función para obtener la URL del archivo (imagen o PDF) para previsualizar/abrir
+  const getFileUrl = () => {
+    if (!uploadedFile) return null;
+
     // Si ya tenemos una URL, usarla
     if (thumbnailRef.current) {
       return thumbnailRef.current;
     }
-    
+
     // Crear nueva URL y guardarla en el ref
     const url = URL.createObjectURL(uploadedFile);
     thumbnailRef.current = url;
     return url;
   };
+
+  const fileUrl = getFileUrl();
 
   return (
     <UploadContainer>
@@ -401,11 +380,11 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
           </StatusBadge>
 
           {/* Preview del archivo */}
-          <FilePreview onClick={handleViewDetails}>
-            {getThumbnailUrl() ? (
-              <img 
-                src={getThumbnailUrl()} 
-                alt={uploadedFile.name} 
+          <FilePreview onClick={handleOpenInNewTab} title="Abrir en una pestaña nueva">
+            {uploadedFile.type.startsWith('image/') && fileUrl ? (
+              <img
+                src={fileUrl}
+                alt={uploadedFile.name}
                 className="thumbnail"
               />
             ) : (
@@ -422,22 +401,10 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
                 <span>{formatFileType(uploadedFile.type)}</span>
               </FileMeta>
             </FileDetails>
-            {confidence !== undefined && (
-              <ConfidenceBadge $isValid={isValid}>
-                {confidence}%
-              </ConfidenceBadge>
-            )}
+            <RemoveLink onClick={(e) => { e.stopPropagation(); handleRemove(); }}>
+              Eliminar
+            </RemoveLink>
           </FileInfo>
-
-          {/* Botones de acción */}
-          <ActionButtons>
-            <ActionButton $variant="view" onClick={(e) => { e.stopPropagation(); handleViewDetails(); }}>
-              👁️ Ver detalles
-            </ActionButton>
-            <ActionButton $variant="delete" onClick={(e) => { e.stopPropagation(); handleRemove(); }}>
-              🗑️ Eliminar
-            </ActionButton>
-          </ActionButtons>
         </FileCard>
       ) : (
         <UploadButton onClick={handleUploadClick}>
@@ -453,15 +420,6 @@ const DocumentUploadV2: React.FC<DocumentUploadV2Props> = ({
           initialStep={2}
           onClose={handleModalClose}
           onComplete={handleUploadComplete}
-        />
-      )}
-
-      {isPreviewOpen && uploadedFile && (
-        <DocumentPreviewModal
-          fileName={uploadedFile.name}
-          isImage={!!getThumbnailUrl()}
-          previewUrl={getThumbnailUrl()}
-          onClose={() => setIsPreviewOpen(false)}
         />
       )}
     </UploadContainer>

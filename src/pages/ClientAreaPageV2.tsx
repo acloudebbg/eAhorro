@@ -698,8 +698,11 @@ const ClientAreaPageV2: React.FC = () => {
     'otros': true
   })
 
-  // Verificar si un documento está subido Y validado
-  const isDocumentUploaded = (docId: string) => {
+  // Verificar si un documento se ha subido (independientemente de si es válido)
+  const isDocumentUploaded = (docId: string) => !!validationResults[docId]
+
+  // Verificar si un documento subido ha sido validado correctamente
+  const isDocumentValid = (docId: string) => {
     const result = validationResults[docId]
     return !!result && result.respuesta === 'SI' && result.confianza >= CONFIDENCE_THRESHOLD
   }
@@ -707,7 +710,7 @@ const ClientAreaPageV2: React.FC = () => {
   // Progreso global: se cuenta sobre TODOS los documentos (no solo los obligatorios)
   const allDocuments = useMemo(() => documentSections.flatMap(s => s.documents), [])
 
-  const completedAllDocuments = useMemo(
+  const uploadedAllDocuments = useMemo(
     () => allDocuments.filter(d => isDocumentUploaded(d.id)).length,
     [allDocuments, uploadedFiles, validationResults]
   )
@@ -718,7 +721,7 @@ const ClientAreaPageV2: React.FC = () => {
     documentSections.forEach(section => {
       const total = section.documents.length
       const done = section.documents.filter(d => isDocumentUploaded(d.id)).length
-      const hasError = section.documents.some(d => validationResults[d.id]?.respuesta === 'NO')
+      const hasError = section.documents.some(d => isDocumentUploaded(d.id) && !isDocumentValid(d.id))
       stats[section.id] = { total, done, state: hasError ? 'error' : done === total ? 'complete' : 'none' }
     })
     return stats
@@ -846,9 +849,9 @@ const ClientAreaPageV2: React.FC = () => {
             <UploadProgressTitle>Sube tus documentos</UploadProgressTitle>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
               <ProgressBarTrack>
-                <ProgressBarFill $percent={(completedAllDocuments / allDocuments.length) * 100} />
+                <ProgressBarFill $percent={(uploadedAllDocuments / allDocuments.length) * 100} />
               </ProgressBarTrack>
-              <ProgressLabel>{completedAllDocuments}/{allDocuments.length} completos</ProgressLabel>
+              <ProgressLabel>{uploadedAllDocuments}/{allDocuments.length} subidos</ProgressLabel>
             </div>
           </UploadProgressHeader>
         </UploadProgressSection>
