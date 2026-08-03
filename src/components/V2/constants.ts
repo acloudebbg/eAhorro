@@ -73,13 +73,20 @@ export const DOCUMENT_OPTIONS: Record<DocumentType, DocumentOption> = {
 export const CONFIDENCE_THRESHOLD = 80;
 
 // Tamaño máximo de archivo en MB
-export const MAX_FILE_SIZE_MB = 10;
+// Limitado a 4MB para respetar el límite de payload (~6MB) de las Netlify Functions síncronas,
+// que reciben el archivo codificado en base64 (~33% más pesado que el binario original)
+export const MAX_FILE_SIZE_MB = 4;
 
 // Formatos de archivo aceptados
 export const ACCEPTED_FORMATS = ['.pdf', '.jpg', '.jpeg', '.png'] as const;
 
-// URL de la API de Mistral
-export const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions' as const;
+// Endpoint del proxy (Netlify Function) que valida el documento con Claude
+export const VALIDATE_DOCUMENT_ENDPOINT = '/api/validate-document' as const;
 
-// Modelo de Mistral a usar
-export const MISTRAL_MODEL = 'mistral-tiny' as const;
+// Configuración de EasyOCR API
+// URL de la API de EasyOCR para extracción de texto de imágenes
+// Según la documentación: https://app.easyocr.es/api-docs
+export const EASYOCR_API_URL = 'https://app.easyocr.es/api/v1/recognize' as const;
+
+// Lenguaje para el OCR (español)
+export const EASYOCR_LANGUAGE = 'es' as const;

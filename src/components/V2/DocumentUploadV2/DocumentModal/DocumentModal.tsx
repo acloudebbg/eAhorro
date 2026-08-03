@@ -6,7 +6,7 @@ import { Step2CaptureMethod } from './Step2CaptureMethod/Step2CaptureMethod';
 import { Step3Processing } from './Step3Processing/Step3Processing';
 import { Step4Success } from './Step4Success/Step4Success';
 import { DocumentType, ModalStep, ValidationResult, ProcessingState, DocumentOption } from '../../types';
-import { COLORS, DOCUMENT_OPTIONS } from '../../constants';
+import { COLORS, DOCUMENT_OPTIONS, MAX_FILE_SIZE_MB } from '../../constants';
 import { processAndValidateFile } from '../utils';
 
 const ModalOverlay = styled.div`
@@ -122,7 +122,7 @@ export const DocumentModal: React.FC<Props> = ({
 
     try {
       // Validar tamaño máximo
-      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
       if (file.size > MAX_FILE_SIZE) {
         throw new Error(`Archivo demasiado grande. Máximo ${MAX_FILE_SIZE / 1024 / 1024}MB`);
       }
@@ -157,10 +157,10 @@ export const DocumentModal: React.FC<Props> = ({
               }));
               break;
             case 'llm_validation':
+              // La validación con Claude corre en paralelo a la extracción OCR/PDF,
+              // así que su progreso ya no fuerza ocrProgress/pdfProgress a 100.
               setProcessingState((prev) => ({
                 ...prev,
-                ocrProgress: 100,
-                pdfProgress: 100,
                 llmProgress: progress,
                 status: 'processing',
               }));
@@ -175,25 +175,15 @@ export const DocumentModal: React.FC<Props> = ({
       console.log('║  ✅ PROCESAMIENTO COMPLETADO CON ÉXITO                 ║');
       console.log('╚══════════════════════════════════════════════════════════════╝');
       console.log('⏱️  Tiempo total:', totalTime, 'segundos');
-      console.log('📊 Texto extraído:', result.text.length, 'caracteres');
-      console.log('📄 PDF generado:', result.wasConverted ? 'Sí (convertido desde imagen)' : 'No (original)');
-      if (result.usedSimulation) {
-        console.log('🎭 Simulación usada:', result.usedSimulation);
-      }
       console.log('🎯 Resultado:', result.result.respuesta, '(' + result.result.confianza + '%)');
       console.log('');
 
-      // Extraer texto para preview (limitar a 1000 caracteres)
-      const previewText = result.text.substring(0, 1000);
       const previewContent = `Documento: ${selectedType || documentType}
 Nombre: ${file.name}
 Tamaño: ${(file.size / 1024).toFixed(2)} KB
 Tipo: ${file.type}
 
---- Contenido extraído ---
-${previewText}${result.text.length > 1000 ? '...' : ''}
-
---- Validación LLM ---
+--- Validación con Claude ---
 Resultado: ${result.result.respuesta}
 Confianza: ${result.result.confianza}%
 ${result.result.feedback ? `Feedback: ${result.result.feedback}` : ''}
@@ -203,7 +193,7 @@ ${result.result.feedback ? `Feedback: ${result.result.feedback}` : ''}
       // Actualizar estado
       setValidationResult(result.result);
       setPdfContent(previewContent);
-      setSelectedFile(result.pdfFile); // Guardar el PDF final (convertido o original)
+      setSelectedFile(result.pdfFile); // Archivo original enviado a Claude
 
       setProcessingState((prev) => ({
         ...prev,

@@ -1,4 +1,4 @@
 export * from './ocrProcessor';
-export * from './mistralValidator';
+export * from './documentValidator';
 // Re-exportar todo para facilidad de uso
-export { processAndValidateFile } from './mistralValidator';
+export { processAndValidateFile } from './documentValidator';

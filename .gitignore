@@ -36,3 +36,6 @@ coverage/
 *.md
 .vibe/
 /eAhorro
+
+# Local Netlify folder
+.netlify

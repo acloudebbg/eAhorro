@@ -1,57 +1,190 @@
 /**
- * Procesador OCR usando Tesseract.js y pdfjs-dist
+ * Procesador OCR usando EasyOCR API y pdfjs-dist
  * Extrae texto de imágenes y PDFs para validación
  */
 
-import Tesseract from 'tesseract.js';
+import { EASYOCR_API_URL, EASYOCR_LANGUAGE } from '../../constants';
 import { PDFDocument, rgb } from 'pdf-lib';
 import { DocumentType } from '../../types';
 
-// Configurar GlobalWorkerOptions para PDF.js
-// Esto es necesario para que pdfjs-dist funcione correctamente
+// Obtener la API Key desde variables de entorno
+const EASYOCR_API_KEY = import.meta.env.VITE_EASYOCR_API_KEY || '';
+
+if (!EASYOCR_API_KEY) {
+  console.warn('⚠️  No se encontró VITE_EASYOCR_API_KEY en las variables de entorno');
+}
+
+// Configurar Worker para PDF.js
+// Para pdfjs-dist v6+, necesitamos crear un Worker que sea accesible desde nuestro origen
+// IMPORTANTE: Esto debe ejecutarse solo en el cliente (navegador)
 let pdfjsWorkerConfigured = false;
-const configurePDFJSWorker = () => {
-  if (pdfjsWorkerConfigured) return;
+let pdfjsWorker: Worker | null = null;
+
+// URLs del worker de PDF.js - probar en orden
+const PDFJS_WORKER_URLS = [
+  // 1. URL de Mozilla (CORS habilitado)
+  'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js',
+  // 2. URL de Cloudflare (puede tener problemas de CORS)
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js',
+];
+
+export const configurePDFJSWorker = async (): Promise<Worker | undefined> => {
+  if (pdfjsWorkerConfigured && pdfjsWorker) return pdfjsWorker;
   
   try {
-    // @ts-ignore - pdfjs-dist no tiene tipos TypeScript completos
-    if (typeof window !== 'undefined') {
-      // Usar el worker CDN de PDF.js
-      // @ts-ignore
-      window.pdfjsGlobalWorkerOptions = {
-        workerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js',
-      };
+    // Verificar que estamos en el navegador
+    if (typeof window === 'undefined') {
+      console.warn('⚠️  PDF.js worker solo puede configurarse en el navegador');
+      return undefined;
     }
-    pdfjsWorkerConfigured = true;
-    console.log('✅ PDF.js worker configurado');
+
+    // Para pdfjs-dist v6+, el worker debe ser creado manualmente
+    if (!pdfjsWorker) {
+      let workerCreated = false;
+      
+      // Intentar cada URL del worker
+      for (const workerUrl of PDFJS_WORKER_URLS) {
+        try {
+          console.log('🔧 Intentando crear PDF.js worker desde:', workerUrl);
+          pdfjsWorker = new Worker(workerUrl);
+          workerCreated = true;
+          pdfjsWorkerConfigured = true;
+          console.log('✅ PDF.js worker configurado desde CDN');
+          break;
+        } catch (workerError) {
+          console.error('❌ Error al crear worker desde:', workerUrl, workerError);
+          // Continuar con la siguiente URL
+        }
+      }
+      
+      // Si ninguna URL del CDN funcionó, intentar con el worker local
+      if (!workerCreated) {
+        try {
+          console.log('🔧 Intentando con worker local (/pdf.worker.min.js)...');
+          pdfjsWorker = new Worker('/pdf.worker.min.js');
+          pdfjsWorkerConfigured = true;
+          console.log('✅ PDF.js worker local configurado');
+        } catch (localWorkerError) {
+          console.error('❌ Error al crear worker local:', localWorkerError);
+          throw new Error('No se pudo crear el worker de PDF.js. Prueba: 1) Usar un servidor HTTP (no file://), 2) Verificar CORS, 3) Verificar que /public/pdf.worker.min.js existe');
+        }
+      }
+    }
+    
+    return pdfjsWorker;
   } catch (error) {
     console.warn('⚠️  No se pudo configurar PDF.js worker:', error);
+    throw error;
   }
 };
 
-configurePDFJSWorker();
+/**
+ * Convierte un archivo de imagen a base64
+ */
+const fileToBase64 = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Extraer solo la parte base64 (sin el prefijo data:...)
+      const base64 = result.split(',')[1] || result;
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error('No se pudo convertir el archivo a base64'));
+    reader.readAsDataURL(file);
+  });
+};
 
 /**
- * Configuración específica de Tesseract para diferentes tipos de documentos
+ * Llama a la API de EasyOCR para extraer texto de una imagen
  */
-const getTesseractConfig = (documentType?: DocumentType) => {
-  // Para DNI/NIE, usar modo de página única y mejor precisión
-  if (documentType === 'dni-nie') {
-    return {
-      lang: 'spa',
-      tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK, // Mejor para documentos con bloques de texto
-      tessedit_ocr_engine_mode: Tesseract.OEM.TESSERACT_LSTM,
-      tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ<>', // Caracteres comunes en DNI
-      preserve_interword_spaces: '1',
-    };
+const callEasyOCRAPI = async (
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> => {
+  try {
+    if (!EASYOCR_API_KEY) {
+      throw new Error('No se encontró la API Key de EasyOCR');
+    }
+
+    console.log('🔍 Iniciando OCR con EasyOCR API:', file.name, file.size, 'bytes');
+    
+    // Convertir archivo a base64
+    const base64Image = await fileToBase64(file);
+    
+    // Asegurar que la URL de la API tiene el formato correcto
+    // Según la documentación: https://app.easyocr.es/api-docs
+    const apiUrl = EASYOCR_API_URL.endsWith('/') ? EASYOCR_API_URL : EASYOCR_API_URL;
+    
+    // Llamar a la API de EasyOCR con timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos de timeout
+    
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${EASYOCR_API_KEY}`,
+        },
+        body: JSON.stringify({
+          image: base64Image,
+          language: EASYOCR_LANGUAGE,
+          // Opciones adicionales para mejor resultado
+          detail: 0, // Solo necesitamos el texto, no los detalles de detección
+        }),
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Error en API de EasyOCR:', response.status, response.statusText, errorData);
+        throw new Error(`Error en API EasyOCR: ${response.status} - ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // EasyOCR devuelve el texto en el campo 'text' o en un array de resultados
+      // Según la documentación, la respuesta tiene estructura: { text: string, ... }
+      const text = data.text || data.result?.[0]?.text || data.data?.[0]?.text || '';
+      
+      if (!text || text.trim().length === 0) {
+        console.warn('⚠️  EasyOCR no devolvió texto. Respuesta:', data);
+        throw new Error('No se pudo extraer texto con EasyOCR');
+      }
+
+      console.log('✅ EasyOCR completado. Texto extraído:', text.length, 'caracteres');
+      
+      // Notificar progreso al 100%
+      onProgress?.(100);
+      
+      return text;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      console.error('❌ Error en fetch a EasyOCR API:', fetchError);
+      
+      // Si el error es de network o timeout, intentar con una URL alternativa
+      if (fetchError.name === 'AbortError') {
+        throw new Error('Timeout al conectar con EasyOCR API');
+      }
+      
+      // Si es un error de DNS o conexión, el dominio podría ser incorrecto
+      if (fetchError.message && (fetchError.message.includes('ERR_NAME_NOT_RESOLVED') || 
+          fetchError.message.includes('Failed to fetch') ||
+          fetchError.message.includes('network'))) {
+        console.error('❌ Problema de conexión con EasyOCR API. Verificando configuración...');
+        console.error('API URL:', apiUrl);
+        console.error('API Key:', EASYOCR_API_KEY ? '*** (oculta)' : 'NO CONFIGURADA');
+      }
+      
+      throw fetchError;
+    }
+  } catch (error) {
+    console.error('❌ Error en llamada a EasyOCR API:', error);
+    throw error;
   }
-  
-  // Para otros documentos, configuración estándar
-  return {
-    lang: 'spa',
-    tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT,
-    tessedit_ocr_engine_mode: Tesseract.OEM.TESSERACT_LSTM,
-  };
 };
 
 /**
@@ -85,7 +218,7 @@ const preprocessImage = async (file: File): Promise<HTMLCanvasElement> => {
       const data = imageData.data;
       
       // Procesamiento: escala de grises + umbralización para mejorar contraste
-      // Esto ayuda a Tesseract a leer mejor documentos con fondo claro y texto oscuro
+      // Esto ayuda al OCR a leer mejor documentos con fondo claro y texto oscuro
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
         const g = data[i + 1];
@@ -122,7 +255,7 @@ const preprocessImage = async (file: File): Promise<HTMLCanvasElement> => {
 };
 
 /**
- * Extrae texto de una imagen usando Tesseract.js OCR
+ * Extrae texto de una imagen usando EasyOCR API
  */
 export const extractTextFromImage = async (
   file: File, 
@@ -139,50 +272,37 @@ export const extractTextFromImage = async (
     console.log('📷 Iniciando OCR en imagen:', file.name, file.size, 'bytes');
     console.log('📄 Tipo de documento:', documentType || 'no especificado');
     
-    // Configuración específica según tipo de documento
-    const config = getTesseractConfig(documentType);
-    
-    // Para DNI/NIE y si no saltamos el preprocesamiento, preprocesar la imagen
+    // Para DNI/NIE, preprocesar la imagen para mejorar la calidad del OCR
     if (documentType === 'dni-nie' && !skipPreprocessing) {
-      console.log('🎯 Usando configuración especializada para DNI/NIE');
-      const processedCanvas = await preprocessImage(file);
-      
-      const { data: { text } } = await Tesseract.recognize(processedCanvas, config.lang, {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            const progress = Math.round(m.progress * 100);
-            console.log(`🔍 OCR DNI/NIE: ${progress}% completado`);
-            onProgress?.(progress);
-          }
-        },
-        tessedit_pageseg_mode: config.tessedit_pageseg_mode,
-        tessedit_ocr_engine_mode: config.tessedit_ocr_engine_mode,
-        // Para DNI/NIE, usar whitelist de caracteres
-        tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ<>',
-        preserve_interword_spaces: '1',
-      });
-      
-      console.log('✅ OCR completado. Texto extraído:');
-      console.log('--- Inicio texto ---');
-      console.log(text.trim().substring(0, 500) + '...');
-      console.log('--- Fin texto ---');
-      
-      return text.trim();
+      console.log('🎯 Usando preprocesamiento para DNI/NIE');
+      try {
+        const processedCanvas = await preprocessImage(file);
+        // Convertir canvas a blob y luego a file
+        const blob = await new Promise<Blob>((resolve) => {
+          processedCanvas.toBlob((b) => resolve(b!), 'image/png');
+        });
+        const processedFile = new File([blob], file.name, { type: 'image/png' });
+        
+        // Llamar a EasyOCR con la imagen preprocesada
+        const text = await callEasyOCRAPI(processedFile, onProgress);
+        
+        console.log('✅ OCR completado. Texto extraído:');
+        console.log('--- Inicio texto ---');
+        console.log(text.trim().substring(0, 500) + '...');
+        console.log('--- Fin texto ---');
+        
+        return text.trim();
+      } catch (preprocessError) {
+        console.warn('⚠️  Preprocesamiento falló, intentando sin preprocesamiento:', preprocessError);
+        // Intentar sin preprocesamiento
+        const text = await callEasyOCRAPI(file, onProgress);
+        return text.trim();
+      }
     }
     
-    // Para otros documentos, usar procesamiento estándar
-    const { data: { text } } = await Tesseract.recognize(file, config.lang, {
-      logger: (m) => {
-        if (m.status === 'recognizing text') {
-          const progress = Math.round(m.progress * 100);
-          console.log(`🔍 OCR: ${progress}% completado`);
-          onProgress?.(progress);
-        }
-      },
-      tessedit_pageseg_mode: config.tessedit_pageseg_mode,
-      tessedit_ocr_engine_mode: config.tessedit_ocr_engine_mode,
-    });
-
+    // Para otros documentos, usar la imagen directamente
+    const text = await callEasyOCRAPI(file, onProgress);
+    
     console.log('✅ OCR completado. Texto extraído:');
     console.log('--- Inicio texto ---');
     console.log(text.trim().substring(0, 500) + '...');
@@ -203,9 +323,6 @@ export const extractTextFromPDF = async (file: File, onProgress?: (progress: num
   try {
     console.log('📄 Iniciando extracción de texto de PDF:', file.name, file.size, 'bytes');
     
-    // Asegurar que el worker está configurado
-    configurePDFJSWorker();
-    
     // @ts-ignore - pdfjs-dist no tiene tipos TypeScript completos
     const pdfjsLib = await import('pdfjs-dist');
     
@@ -214,16 +331,26 @@ export const extractTextFromPDF = async (file: File, onProgress?: (progress: num
       throw new Error('El archivo no parece ser un PDF válido');
     }
     
+    // Obtener el worker configurado
+    const worker = await configurePDFJSWorker();
+    
+    if (!worker) {
+      throw new Error('No se pudo configurar el worker de PDF.js');
+    }
+    
     // Cargar el PDF
     const arrayBuffer = await file.arrayBuffer();
     
-    // Configurar el worker específicamente para esta tarea
+    // Para pdfjs-dist v6+, necesitamos pasar el workerPort en lugar de worker
     // @ts-ignore
     const loadingTask = pdfjsLib.getDocument({
       data: arrayBuffer,
       // @ts-ignore
       cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/cmaps/',
       cMapPacked: true,
+      // En pdfjs-dist v6+, usamos workerPort en lugar de worker
+      // @ts-ignore
+      workerPort: worker,
     });
     
     loadingTask.onProgress = (progressData) => {
@@ -311,10 +438,15 @@ export const extractTextFromPDFWithFallback = async (
         // Intentar con configuración legacy
         // @ts-ignore
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf');
+        
+        // Configurar el worker para la versión legacy
         // @ts-ignore
-        window.pdfjsGlobalWorkerOptions = {
-          workerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js',
-        };
+        if (typeof window !== 'undefined') {
+          // @ts-ignore
+          window.pdfjsGlobalWorkerOptions = {
+            workerSrc: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js',
+          };
+        }
         
         const arrayBuffer = await file.arrayBuffer();
         // @ts-ignore
@@ -380,6 +512,129 @@ export const processFileForText = async (
     throw new Error('Tipo de archivo no soportado: ' + file.type);
   } catch (error) {
     console.error('❌ Error en processFileForText:', error);
+    throw error;
+  }
+};
+
+/**
+ * Convierte texto a PDF usando pdf-lib
+ */
+export const convertTextToPDF = async (
+  text: string,
+  originalFileName: string,
+  onProgress?: (progress: number) => void
+): Promise<File> => {
+  try {
+    console.log('📝 Convirtendo texto a PDF...');
+    
+    // Crear un nuevo documento PDF
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([595, 842]); // Tamaño A4
+    
+    // Añadir texto al PDF
+    page.drawText(text, {
+      x: 50,
+      y: 800,
+      size: 12,
+      color: rgb(0, 0, 0),
+      lineHeight: 16,
+    });
+    
+    // Serializar el PDF
+    const pdfBytes = await pdfDoc.save();
+    
+    console.log('✅ PDF generado. Tamaño:', pdfBytes.length, 'bytes');
+    
+    // Crear un objeto File
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const pdfFile = new File([blob], `converted_${originalFileName}.pdf`, {
+      type: 'application/pdf',
+    });
+    
+    onProgress?.(100);
+    return pdfFile;
+  } catch (error) {
+    console.error('❌ Error al convertir a PDF:', error);
+    throw new Error('No se pudo convertir a PDF: ' + (error as Error).message);
+  }
+};
+
+/**
+ * Procesa completamente un archivo: extrae texto, convierte a PDF y prepara para validación
+ * Para imágenes: OCR + convertir a PDF
+ * Para PDFs: extraer texto + mantener el PDF original
+ * Si todo falla, usa simulación robusta
+ */
+export const processFileForValidation = async (
+  file: File,
+  onProgress?: (progress: number) => void,
+  documentType?: DocumentType
+): Promise<{ 
+  text: string; 
+  pdfFile: File; 
+  wasConverted: boolean;
+  usedSimulation: boolean; // Si se usó simulación
+}> => {
+  try {
+    console.log('🚀 Iniciando procesamiento completo del archivo:', file.name);
+    console.log('📄 Tipo de documento:', documentType || 'no especificado');
+    const startTime = Date.now();
+    
+    let text = '';
+    let usedSimulation = false;
+    
+    // Intentar extraer texto
+    try {
+      text = await processFileForText(file, (progress) => {
+        onProgress?.(Math.round(progress * 0.7)); // 70% del progreso para extracción
+      }, documentType);
+      
+      console.log(`✅ Texto extraído correctamente: ${text.length} caracteres`);
+      
+      // Validar que el texto extraído tiene contenido mínimo
+      if (text.trim().length < 50) {
+        console.warn('⚠️  Texto extraído demasiado corto (${text.length} caracteres). Usando simulación...');
+        const simulation = simulateDocumentValidation(file.name, documentType || 'documentacion-extra', file.size, file.type);
+        text = simulation.text;
+        usedSimulation = true;
+      }
+    } catch (extractionError) {
+      console.error('❌ Falló la extracción de texto:', extractionError);
+      console.log('🎭 Usando simulación robusta como fallback...');
+      
+      // Usar simulación como fallback
+      const simulation = simulateDocumentValidation(file.name, documentType || 'documentacion-extra', file.size, file.type);
+      text = simulation.text;
+      usedSimulation = true;
+    }
+    
+    console.log(`⏱️  Extracción completada en ${Date.now() - startTime}ms`);
+    
+    let pdfFile = file;
+    let wasConverted = false;
+    
+    // Si es imagen, convertir a PDF
+    if (file.type.startsWith('image/') && !usedSimulation) {
+      console.log('🖼️  Archivo es imagen, convirtiendo a PDF...');
+      pdfFile = await convertTextToPDF(text, file.name, (progress) => {
+        onProgress?.(70 + Math.round(progress * 0.3)); // 30% del progreso para conversión
+      });
+      wasConverted = true;
+      console.log('✅ Imagen convertida a PDF');
+    }
+    
+    console.log(`⏱️  Procesamiento completo en ${Date.now() - startTime}ms`);
+    console.log('--- Resumen ---');
+    console.log('📄 Tipo:', file.type);
+    console.log('📝 Texto extraído:', text.length, 'caracteres');
+    console.log('📁 Archivo de salida:', pdfFile.name, pdfFile.size, 'bytes');
+    console.log('🔄 Convertido:', wasConverted ? 'Sí' : 'No');
+    console.log('🎭 Simulación usada:', usedSimulation ? 'Sí' : 'No');
+    console.log('-----------------');
+    
+    return { text, pdfFile, wasConverted, usedSimulation };
+  } catch (error) {
+    console.error('❌ Error en procesamiento completo:', error);
     throw error;
   }
 };
@@ -575,129 +830,6 @@ Titular: JUAN GARCIA LOPEZ`,
     confidence,
     feedback,
   };
-};
-
-/**
- * Convierte texto a PDF usando pdf-lib
- */
-export const convertTextToPDF = async (
-  text: string,
-  originalFileName: string,
-  onProgress?: (progress: number) => void
-): Promise<File> => {
-  try {
-    console.log('📝 Convirtendo texto a PDF...');
-    
-    // Crear un nuevo documento PDF
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595, 842]); // Tamaño A4
-    
-    // Añadir texto al PDF
-    page.drawText(text, {
-      x: 50,
-      y: 800,
-      size: 12,
-      color: rgb(0, 0, 0),
-      lineHeight: 16,
-    });
-    
-    // Serializar el PDF
-    const pdfBytes = await pdfDoc.save();
-    
-    console.log('✅ PDF generado. Tamaño:', pdfBytes.length, 'bytes');
-    
-    // Crear un objeto File
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const pdfFile = new File([blob], `converted_${originalFileName}.pdf`, {
-      type: 'application/pdf',
-    });
-    
-    onProgress?.(100);
-    return pdfFile;
-  } catch (error) {
-    console.error('❌ Error al convertir a PDF:', error);
-    throw new Error('No se pudo convertir a PDF: ' + (error as Error).message);
-  }
-};
-
-/**
- * Procesa completamente un archivo: extrae texto, convierte a PDF y prepara para validación
- * Para imágenes: OCR + convertir a PDF
- * Para PDFs: extraer texto + mantener el PDF original
- * Si todo falla, usa simulación robusta
- */
-export const processFileForValidation = async (
-  file: File,
-  onProgress?: (progress: number) => void,
-  documentType?: DocumentType
-): Promise<{ 
-  text: string; 
-  pdfFile: File; 
-  wasConverted: boolean;
-  usedSimulation: boolean; // Si se usó simulación
-}> => {
-  try {
-    console.log('🚀 Iniciando procesamiento completo del archivo:', file.name);
-    console.log('📄 Tipo de documento:', documentType || 'no especificado');
-    const startTime = Date.now();
-    
-    let text = '';
-    let usedSimulation = false;
-    
-    // Intentar extraer texto
-    try {
-      text = await processFileForText(file, (progress) => {
-        onProgress?.(Math.round(progress * 0.7)); // 70% del progreso para extracción
-      }, documentType);
-      
-      console.log(`✅ Texto extraído correctamente: ${text.length} caracteres`);
-      
-      // Validar que el texto extraído tiene contenido mínimo
-      if (text.trim().length < 50) {
-        console.warn('⚠️  Texto extraído demasiado corto (${text.length} caracteres). Usando simulación...');
-        const simulation = simulateDocumentValidation(file.name, documentType || 'documentacion-extra', file.size, file.type);
-        text = simulation.text;
-        usedSimulation = true;
-      }
-    } catch (extractionError) {
-      console.error('❌ Falló la extracción de texto:', extractionError);
-      console.log('🎭 Usando simulación robusta como fallback...');
-      
-      // Usar simulación como fallback
-      const simulation = simulateDocumentValidation(file.name, documentType || 'documentacion-extra', file.size, file.type);
-      text = simulation.text;
-      usedSimulation = true;
-    }
-    
-    console.log(`⏱️  Extracción completada en ${Date.now() - startTime}ms`);
-    
-    let pdfFile = file;
-    let wasConverted = false;
-    
-    // Si es imagen, convertir a PDF
-    if (file.type.startsWith('image/') && !usedSimulation) {
-      console.log('🖼️  Archivo es imagen, convirtiendo a PDF...');
-      pdfFile = await convertTextToPDF(text, file.name, (progress) => {
-        onProgress?.(70 + Math.round(progress * 0.3)); // 30% del progreso para conversión
-      });
-      wasConverted = true;
-      console.log('✅ Imagen convertida a PDF');
-    }
-    
-    console.log(`⏱️  Procesamiento completo en ${Date.now() - startTime}ms`);
-    console.log('--- Resumen ---');
-    console.log('📄 Tipo:', file.type);
-    console.log('📝 Texto extraído:', text.length, 'caracteres');
-    console.log('📁 Archivo de salida:', pdfFile.name, pdfFile.size, 'bytes');
-    console.log('🔄 Convertido:', wasConverted ? 'Sí' : 'No');
-    console.log('🎭 Simulación usada:', usedSimulation ? 'Sí' : 'No');
-    console.log('-----------------');
-    
-    return { text, pdfFile, wasConverted, usedSimulation };
-  } catch (error) {
-    console.error('❌ Error en procesamiento completo:', error);
-    throw error;
-  }
 };
 
 export default {
