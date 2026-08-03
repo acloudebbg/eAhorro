@@ -243,6 +243,80 @@ const LanguageSelector = styled.div`
   }
 `
 
+// Footer components
+const LoginFooter = styled.footer`
+  background: var(--color-secondary);
+  color: var(--color-white);
+  padding: var(--spacing-xl) 0;
+  margin-top: auto;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg) 0;
+  }
+`
+
+const FooterContent = styled.div`
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-xl);
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+    text-align: center;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+`
+
+const FooterSection = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+`
+
+const FooterIcon = styled.span`
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  
+  @media (max-width: 576px) {
+    font-size: 1.2rem;
+  }
+`
+
+const FooterText = styled.div`
+  & h4 {
+    color: var(--color-white);
+    font-size: clamp(0.95rem, 1.7vw, 1rem);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+    
+    @media (max-width: 576px) {
+      font-size: 0.9rem;
+    }
+  }
+  
+  & p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: clamp(0.85rem, 1.5vw, 0.85rem);
+    line-height: 1.5;
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+    }
+  }
+`
+
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -277,6 +351,22 @@ const LoginPage: React.FC = () => {
       setIsLoading(false)
       navigate('/area-cliente')
     }, 1000)
+  }
+
+  const handleSecondButtonClick = () => {
+    setError('')
+    
+    if (!email.trim()) {
+      setError('El correo electrónico es obligatorio')
+      return
+    }
+    
+    if (!validateEmail(email)) {
+      setError('Introduce un correo electrónico válido')
+      return
+    }
+    
+    navigate('/area-cliente-v2')
   }
 
   return (
@@ -328,20 +418,9 @@ const LoginPage: React.FC = () => {
             <SubmitButton 
               type="button" 
               style={{ background: '#4CAF50', marginTop: 'var(--spacing-sm)' }}
-              onClick={() => {
-                if (!email.trim()) {
-                  setError('El correo electrónico es obligatorio')
-                  return
-                }
-                if (!validateEmail(email)) {
-                  setError('Introduce un correo electrónico válido')
-                  return
-                }
-                navigate('/area-cliente-v2')
-              }}
+              onClick={handleSecondButtonClick}
               onMouseEnter={(e) => e.currentTarget.style.background = '#45a049'}
               onMouseLeave={(e) => e.currentTarget.style.background = '#4CAF50'}
-              disabled={!email.trim() || !validateEmail(email)}
             >
               Acceso a nueva área
             </SubmitButton>
@@ -357,6 +436,33 @@ const LoginPage: React.FC = () => {
           </LoginHelp>
         </LoginCard>
       </LoginMain>
+      
+      {/* Footer */}
+      <LoginFooter>
+        <FooterContent>
+          <FooterSection>
+            <FooterIcon>🏦</FooterIcon>
+            <FooterText>
+              <h4>Certificación de Banco de España</h4>
+              <p>Entidad de Crédito Inmobiliario con número de registro D185</p>
+            </FooterText>
+          </FooterSection>
+          <FooterSection>
+            <FooterIcon>🔒</FooterIcon>
+            <FooterText>
+              <h4>Conexión 100% segura</h4>
+              <p>Certificados SSL SHA-256 para la máxima seguridad de nuestras comunicaciones digitales.</p>
+            </FooterText>
+          </FooterSection>
+          <FooterSection>
+            <FooterIcon>🔑</FooterIcon>
+            <FooterText>
+              <h4>Confidencialidad</h4>
+              <p>Cifrado y almacenamiento seguro de tus datos cumpliendo estrictamente con la RGPD.</p>
+            </FooterText>
+          </FooterSection>
+        </FooterContent>
+      </LoginFooter>
     </LoginContainer>
   )
 }
