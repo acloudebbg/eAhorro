@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import DocumentUploadV2 from '../components/V2/DocumentUploadV2/DocumentUploadV2'
 import { ValidationResult, DocumentType } from '../components/V2/types'
 import { CONFIDENCE_THRESHOLD, COLORS } from '../components/V2/constants'
-import { MessagesProvider, MessageIcon, MessagesModal } from '../components/V2/Messages'
+import { MessagesProvider, useMessages, MessageIcon, MessagesModal } from '../components/V2/Messages'
 
 // Interfaces para los documentos
 interface DocumentItem {
@@ -687,7 +687,16 @@ const FooterText = styled.div`
 `
 
 const ClientAreaPageV2: React.FC = () => {
+  return (
+    <MessagesProvider>
+      <ClientAreaContent />
+    </MessagesProvider>
+  )
+}
+
+const ClientAreaContent: React.FC = () => {
   const navigate = useNavigate()
+  const { notifySectionComplete } = useMessages()
   const [userName] = useState('Enrique B. B.')
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({})
   const [validationResults, setValidationResults] = useState<Record<string, ValidationResult>>({})
@@ -726,6 +735,17 @@ const ClientAreaPageV2: React.FC = () => {
     })
     return stats
   }, [uploadedFiles, validationResults])
+
+  // Avisar por mensaje cuando un apartado se completa: basta con haber subido
+  // todos sus documentos, sin importar si han sido validados correctamente
+  useEffect(() => {
+    documentSections.forEach(section => {
+      const stats = categoryStats[section.id]
+      if (stats && stats.done === stats.total) {
+        notifySectionComplete(section.id, section.title)
+      }
+    })
+  }, [categoryStats, notifySectionComplete])
 
   // Manejar subida de archivos con validación
   const handleFileUpload = (docId: string) => (result: ValidationResult, file: File) => {
@@ -778,7 +798,7 @@ const ClientAreaPageV2: React.FC = () => {
   }
 
   return (
-    <MessagesProvider>
+    <>
       <ClientAreaContainer>
       {/* Header */}
       <ClientHeader>
@@ -923,10 +943,10 @@ const ClientAreaPageV2: React.FC = () => {
         </FooterContent>
       </ClientFooter>
       </ClientAreaContainer>
-      
+
       {/* Modal de mensajes */}
       <MessagesModal />
-    </MessagesProvider>
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { useMessages, Message } from './MessagesContext';
+import { useMessages } from './MessagesContext';
 
 // Estilos de la ventana flotante (no modal bloqueante)
 const FloatWindow = styled.div<{ $isOpen: boolean }>`
@@ -137,17 +137,16 @@ const MessagesContainer = styled.div`
   }
 `;
 
-// Mensaje individual
-const MessageBubble = styled.div<{ $isUser: boolean }>`
+// Mensaje individual (todos proceden del asesor/sistema)
+const MessageBubble = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 85%;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
-  background: ${({ $isUser }) =>
-    $isUser ? 'var(--color-primary)' : 'var(--color-white)'};
-  color: ${({ $isUser }) => $isUser ? 'white' : 'var(--color-secondary)'};
-  align-self: ${({ $isUser }) => $isUser ? 'flex-end' : 'flex-start'};
+  background: var(--color-white);
+  color: var(--color-secondary);
+  align-self: flex-start;
   word-wrap: break-word;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
@@ -155,69 +154,28 @@ const MessageBubble = styled.div<{ $isUser: boolean }>`
     font-size: 0.85rem;
     line-height: 1.4;
   }
-
-  .time {
-    font-size: 0.7rem;
-    opacity: 0.7;
-    margin-top: 2px;
-    text-align: ${({ $isUser }) => $isUser ? 'right' : 'left'};
-  }
 `;
 
-// Área de entrada de mensajes
-const InputArea = styled.div`
+// Fila con la hora y la marca de leído
+const MessageMeta = styled.div`
   display: flex;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm);
-  border-top: 1px solid var(--color-gray-200);
-  background: var(--color-white);
-
-  @media (max-width: 768px) {
-    padding: var(--spacing-xs);
-  }
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 2px;
 `;
 
-// Input de texto
-const MessageInput = styled.textarea`
-  flex: 1;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border: 1px solid var(--color-gray-300);
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  resize: none;
-  min-height: 36px;
-  max-height: 80px;
-  font-family: inherit;
-
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(0, 168, 232, 0.2);
-  }
+const MessageTime = styled.span`
+  font-size: 0.7rem;
+  opacity: 0.7;
 `;
 
-// Botón de enviar
-const SendButton = styled.button<{ disabled: boolean }>`
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-
-  &:disabled {
-    background: var(--color-gray-300);
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  &:not(:disabled):hover {
-    background: #0086c5;
-  }
+// Marca visual de leído (estilo doble check)
+const ReadReceipt = styled.span<{ $read: boolean }>`
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: -2px;
+  color: ${({ $read }) => ($read ? '#4FC3F7' : 'var(--color-gray-400)')};
 `;
 
 // Mensaje de bienvenida
@@ -246,19 +204,12 @@ const WelcomeMessage = styled.div`
 
 // Componente MessagesModal
 const MessagesModal: React.FC = () => {
-  const { 
-    messages, 
-    isMessagesModalOpen, 
-    closeMessagesModal, 
-    sendMessage 
+  const {
+    messages,
+    isMessagesModalOpen,
+    closeMessagesModal,
   } = useMessages();
-  
-  // No renderizar nada si el modal no está abierto
-  if (!isMessagesModalOpen) {
-    return null;
-  }
-  
-  const [newMessage, setNewMessage] = useState('');
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
 
@@ -275,7 +226,7 @@ const MessagesModal: React.FC = () => {
 
   // Manejar arrastrar la ventana
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget || 
+    if (e.target === e.currentTarget ||
         (e.target as HTMLElement).closest('.draggable-area')) {
       setIsDragging(true);
       setDragStartPos({ x: e.clientX, y: e.clientY });
@@ -289,10 +240,10 @@ const MessagesModal: React.FC = () => {
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging) return;
-    
+
     const dx = e.clientX - dragStartPos.x;
     const dy = e.clientY - dragStartPos.y;
-    
+
     setPosition({
       x: windowStartPos.x + dx,
       y: windowStartPos.y + dy
@@ -312,21 +263,12 @@ const MessagesModal: React.FC = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     }
-    
+
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, dragStartPos, windowStartPos]);
-
-  // Manejar el envío de mensaje
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newMessage.trim()) {
-      sendMessage(newMessage);
-      setNewMessage('');
-    }
-  };
 
   // Formatear la hora
   const formatTime = (date: Date) => {
@@ -343,6 +285,11 @@ const MessagesModal: React.FC = () => {
 
   // Mensaje de bienvenida
   const showWelcome = messages.length === 0;
+
+  // No renderizar nada si el modal no está abierto (tras haber llamado a todos los hooks)
+  if (!isMessagesModalOpen) {
+    return null;
+  }
 
   return (
     <FloatWindow
@@ -362,8 +309,8 @@ const MessagesModal: React.FC = () => {
           <span>Mensajes</span>
         </span>
         <div className="controls">
-          <button 
-            className="close-button" 
+          <button
+            className="close-button"
             onClick={closeMessagesModal}
             title="Cerrar"
           >
@@ -379,46 +326,28 @@ const MessagesModal: React.FC = () => {
               <div className="icon">💬</div>
               <div className="title">Bienvenido a tus mensajes</div>
               <div className="subtitle">
-                Aquí recibirás notificaciones y podrás comunicarte con tu asesor hipotecario.
+                Aquí recibirás notificaciones de tu asesor hipotecario sobre el estado de tu solicitud.
               </div>
             </WelcomeMessage>
           ) : (
             sortedMessages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                $isUser={message.sender === 'user'}
-              >
+              <MessageBubble key={message.id}>
                 <span className="text">{message.text}</span>
-                <span className="time">{formatTime(message.timestamp)}</span>
+                <MessageMeta>
+                  <MessageTime>{formatTime(message.timestamp)}</MessageTime>
+                  <ReadReceipt
+                    $read={message.read}
+                    title={message.read ? 'Leído' : 'No leído'}
+                  >
+                    {message.read ? '✓✓' : '✓'}
+                  </ReadReceipt>
+                </MessageMeta>
               </MessageBubble>
             ))
           )}
           <div ref={messagesEndRef} />
         </MessagesContainer>
       </WindowContent>
-
-      <form onSubmit={handleSend}>
-        <InputArea>
-          <MessageInput
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Escribe tu mensaje..."
-            rows={1}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend(e);
-              }
-            }}
-          />
-          <SendButton 
-            type="submit" 
-            disabled={!newMessage.trim()}
-          >
-            Enviar
-          </SendButton>
-        </InputArea>
-      </form>
     </FloatWindow>
   );
 };
