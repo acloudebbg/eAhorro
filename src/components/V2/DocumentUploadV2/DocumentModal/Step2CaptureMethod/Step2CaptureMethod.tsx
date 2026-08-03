@@ -43,12 +43,12 @@ const MethodButton = styled.button`
   }
 `;
 
-const DragDropArea = styled.div<{ isDragging: boolean }>`
-  border: 2px dashed ${({ isDragging }) => (isDragging ? COLORS.captureButton : COLORS.documentButtonBorder)};
+const DragDropArea = styled.div<{ $isDragging: boolean }>`
+  border: 2px dashed ${({ $isDragging }) => ($isDragging ? COLORS.captureButton : COLORS.documentButtonBorder)};
   border-radius: var(--radius-md);
   padding: var(--spacing-2xl);
   text-align: center;
-  background: ${({ isDragging }) => (isDragging ? 'rgba(0, 168, 232, 0.1)' : COLORS.documentButtonBg)};
+  background: ${({ $isDragging }) => ($isDragging ? 'rgba(0, 168, 232, 0.1)' : COLORS.documentButtonBg)};
   cursor: pointer;
   transition: all 0.2s ease;
   margin-top: var(--spacing-md);
@@ -139,7 +139,7 @@ export const Step2CaptureMethod: React.FC<Props> = ({ onFileSelect, onCameraSele
       </MethodGrid>
 
       <DragDropArea
-        isDragging={isDragging}
+        $isDragging={isDragging}
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

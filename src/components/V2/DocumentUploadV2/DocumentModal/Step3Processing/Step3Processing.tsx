@@ -9,11 +9,11 @@ const Container = styled.div`
 `;
 
 const ProcessingIcon = styled.div`
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: ${COLORS.stepActive};
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
   animation: spin 2s linear infinite;
-  
+
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -21,30 +21,16 @@ const ProcessingIcon = styled.div`
 `;
 
 const StatusText = styled.p`
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--color-secondary);
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
   font-weight: 500;
 `;
 
-const ProgressContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-`;
-
-const ProgressItem = styled.div`
+const ProgressRow = styled.div`
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-`;
-
-const ProgressLabel = styled.span`
-  width: 120px;
-  text-align: right;
-  font-size: 0.9rem;
-  color: var(--color-gray-600);
 `;
 
 const ProgressBarContainer = styled.div`
@@ -55,9 +41,9 @@ const ProgressBarContainer = styled.div`
   overflow: hidden;
 `;
 
-const ProgressBar = styled.div<{ progress: number }>`
+const ProgressBar = styled.div<{ $progress: number }>`
   height: 100%;
-  width: ${({ progress }) => progress}%;
+  width: ${({ $progress }) => $progress}%;
   background: ${COLORS.progressBar};
   border-radius: var(--radius-full);
   transition: width 0.3s ease;
@@ -85,12 +71,6 @@ interface Props {
 }
 
 export const Step3Processing: React.FC<Props> = ({ state }) => {
-  const progressItems = [
-    { label: 'OCR', progress: state.ocrProgress },
-    { label: 'PDF', progress: state.pdfProgress },
-    { label: 'LLM', progress: state.llmProgress },
-  ];
-
   if (state.status === 'error') {
     return (
       <Container>
@@ -104,19 +84,14 @@ export const Step3Processing: React.FC<Props> = ({ state }) => {
   return (
     <Container>
       <ProcessingIcon>🔄</ProcessingIcon>
-      <StatusText>Procesando documento...</StatusText>
+      <StatusText>Validando documento con IA...</StatusText>
 
-      <ProgressContainer>
-        {progressItems.map((item) => (
-          <ProgressItem key={item.label}>
-            <ProgressLabel>{item.label}:</ProgressLabel>
-            <ProgressBarContainer>
-              <ProgressBar progress={item.progress} />
-            </ProgressBarContainer>
-            <ProgressPercentage>{item.progress}%</ProgressPercentage>
-          </ProgressItem>
-        ))}
-      </ProgressContainer>
+      <ProgressRow>
+        <ProgressBarContainer>
+          <ProgressBar $progress={state.progress} />
+        </ProgressBarContainer>
+        <ProgressPercentage>{state.progress}%</ProgressPercentage>
+      </ProgressRow>
     </Container>
   );
 };

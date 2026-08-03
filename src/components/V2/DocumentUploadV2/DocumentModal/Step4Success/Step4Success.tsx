@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { COLORS } from '../../../constants';
 import { ValidationResult } from '../../../types';
-import { CONFIDENCE_THRESHOLD } from '../../../constants';
 
 const Container = styled.div`
   padding: var(--spacing-lg);
@@ -10,42 +9,35 @@ const Container = styled.div`
 `;
 
 const SuccessIcon = styled.div<{ $isValid: boolean }>`
-  font-size: 3rem;
+  font-size: 2.2rem;
   color: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
 `;
 
 const SuccessTitle = styled.h3<{ $isValid: boolean }>`
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  color: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
+  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+`;
+
+const ConfidenceText = styled.p<{ $isValid: boolean }>`
+  font-size: 1rem;
   color: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
   margin-bottom: var(--spacing-md);
   font-weight: 600;
 `;
 
-const ConfidenceText = styled.p<{ $isValid: boolean }>`
-  font-size: 1.1rem;
-  color: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
-  margin-bottom: var(--spacing-xl);
-  font-weight: 600;
-`;
-
-const PreviewContainer = styled.div`
-  border: 1px dashed ${COLORS.pdfPreviewBorder};
+const InfoBox = styled.div`
+  border: 1px solid ${COLORS.pdfPreviewBorder};
   border-radius: var(--radius-md);
-  padding: var(--spacing-xl);
-  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-md);
   background: white;
-
-  .preview-content {
-    max-height: 300px;
-    overflow: auto;
-    text-align: left;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: var(--color-gray-700);
-    white-space: pre-wrap;
-    font-family: monospace;
-  }
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--color-gray-700);
+  line-height: 1.5;
 `;
 
 const ActionButtons = styled.div`
@@ -57,7 +49,7 @@ const ActionButtons = styled.div`
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'danger' | 'success' }>`
   padding: var(--spacing-md) var(--spacing-xl);
-  background: ${({ $variant }) => 
+  background: ${({ $variant }) =>
     $variant === 'primary' ? COLORS.captureButton :
     $variant === 'danger' ? COLORS.error :
     COLORS.success};
@@ -73,7 +65,7 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'danger' | 'success' 
     opacity: 0.9;
     transform: translateY(-1px);
   }
-  
+
   @media (max-width: 576px) {
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: 0.85rem;
@@ -82,8 +74,8 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'danger' | 'success' 
 
 const FeedbackText = styled.p`
   color: ${COLORS.error};
-  font-size: 0.9rem;
-  margin-bottom: var(--spacing-lg);
+  font-size: 0.85rem;
+  margin-bottom: var(--spacing-md);
   padding: var(--spacing-sm);
   background: rgba(220, 53, 69, 0.1);
   border-radius: var(--radius-sm);
@@ -91,16 +83,25 @@ const FeedbackText = styled.p`
 
 interface Props {
   result: ValidationResult;
-  pdfContent: string | null;
+  isValid: boolean;
+  fileName: string;
+  fileSizeKB: number;
+  documentTypeLabel: string;
   onRetry: () => void;
   onDelete: () => void;
-  onClose: () => void;
   onComplete: () => void;
 }
 
-export const Step4Success: React.FC<Props> = ({ result, pdfContent, onRetry, onDelete, onClose, onComplete }) => {
-  const isValid = result.confianza >= CONFIDENCE_THRESHOLD;
-
+export const Step4Success: React.FC<Props> = ({
+  result,
+  isValid,
+  fileName,
+  fileSizeKB,
+  documentTypeLabel,
+  onRetry,
+  onDelete,
+  onComplete,
+}) => {
   return (
     <Container>
       <SuccessIcon $isValid={isValid}>
@@ -115,11 +116,11 @@ export const Step4Success: React.FC<Props> = ({ result, pdfContent, onRetry, onD
         Confianza: {result.confianza}%
       </ConfidenceText>
 
-      {pdfContent && (
-        <PreviewContainer>
-          <div className="preview-content">{pdfContent.substring(0, 1000)}...</div>
-        </PreviewContainer>
-      )}
+      <InfoBox>
+        <div>📄 {documentTypeLabel}</div>
+        <div>{fileName}</div>
+        <div>{fileSizeKB.toFixed(2)} KB</div>
+      </InfoBox>
 
       {result.feedback && (
         <FeedbackText>{result.feedback}</FeedbackText>

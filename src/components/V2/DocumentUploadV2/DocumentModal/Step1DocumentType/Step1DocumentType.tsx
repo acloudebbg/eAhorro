@@ -24,21 +24,21 @@ const DocumentGrid = styled.div`
   }
 `;
 
-const DocumentButton = styled.button<{ selected: boolean }>`
+const DocumentButton = styled.button<{ $selected: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl);
-  background: ${({ selected }) => (selected ? COLORS.captureButton : COLORS.documentButtonBg)};
-  border: 2px solid ${({ selected }) => (selected ? COLORS.captureButton : COLORS.documentButtonBorder)};
+  background: ${({ $selected }) => ($selected ? COLORS.captureButton : COLORS.documentButtonBg)};
+  border: 2px solid ${({ $selected }) => ($selected ? COLORS.captureButton : COLORS.documentButtonBorder)};
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
-  color: ${({ selected }) => (selected ? 'white' : 'var(--color-secondary)')};
-  
+  color: ${({ $selected }) => ($selected ? 'white' : 'var(--color-secondary)')};
+
   &:hover {
-    background: ${({ selected }) => (selected ? COLORS.captureButton : '#e9ecef')};
+    background: ${({ $selected }) => ($selected ? COLORS.captureButton : '#e9ecef')};
     border-color: ${COLORS.captureButton};
   }
   
@@ -68,7 +68,7 @@ export const Step1DocumentType: React.FC<Props> = ({ options, selected, onSelect
         {options.map((option) => (
           <DocumentButton
             key={option.id}
-            selected={selected === option.id}
+            $selected={selected === option.id}
             onClick={() => onSelect(option.id)}
           >
             <span className="icon">{option.icon}</span>

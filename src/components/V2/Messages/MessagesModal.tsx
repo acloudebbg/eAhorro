@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useMessages, Message } from './MessagesContext';
 
 // Estilos de la ventana flotante (no modal bloqueante)
-const FloatWindow = styled.div<{ isOpen: boolean }>`
+const FloatWindow = styled.div<{ $isOpen: boolean }>`
   position: fixed;
   width: 380px;
   max-width: 90vw;
@@ -12,7 +12,7 @@ const FloatWindow = styled.div<{ isOpen: boolean }>`
   border-radius: var(--radius-lg);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
   border: 1px solid var(--color-gray-200);
-  display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
+  display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
   flex-direction: column;
   z-index: 3000;
   animation: floatIn 0.3s ease;
@@ -138,16 +138,16 @@ const MessagesContainer = styled.div`
 `;
 
 // Mensaje individual
-const MessageBubble = styled.div<{ isUser: boolean }>`
+const MessageBubble = styled.div<{ $isUser: boolean }>`
   display: flex;
   flex-direction: column;
   max-width: 85%;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
-  background: ${({ isUser }) => 
-    isUser ? 'var(--color-primary)' : 'var(--color-white)'};
-  color: ${({ isUser }) => isUser ? 'white' : 'var(--color-secondary)'};
-  align-self: ${({ isUser }) => isUser ? 'flex-end' : 'flex-start'};
+  background: ${({ $isUser }) =>
+    $isUser ? 'var(--color-primary)' : 'var(--color-white)'};
+  color: ${({ $isUser }) => $isUser ? 'white' : 'var(--color-secondary)'};
+  align-self: ${({ $isUser }) => $isUser ? 'flex-end' : 'flex-start'};
   word-wrap: break-word;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
@@ -160,7 +160,7 @@ const MessageBubble = styled.div<{ isUser: boolean }>`
     font-size: 0.7rem;
     opacity: 0.7;
     margin-top: 2px;
-    text-align: ${({ isUser }) => isUser ? 'right' : 'left'};
+    text-align: ${({ $isUser }) => $isUser ? 'right' : 'left'};
   }
 `;
 
@@ -347,7 +347,7 @@ const MessagesModal: React.FC = () => {
   return (
     <FloatWindow
       ref={windowRef}
-      isOpen={isMessagesModalOpen}
+      $isOpen={isMessagesModalOpen}
       style={{
         left: position.x !== 0 ? `${position.x}px` : 'auto',
         right: position.x === 0 ? '20px' : 'auto',
@@ -384,9 +384,9 @@ const MessagesModal: React.FC = () => {
             </WelcomeMessage>
           ) : (
             sortedMessages.map((message) => (
-              <MessageBubble 
+              <MessageBubble
                 key={message.id}
-                isUser={message.sender === 'user'}
+                $isUser={message.sender === 'user'}
               >
                 <span className="text">{message.text}</span>
                 <span className="time">{formatTime(message.timestamp)}</span>

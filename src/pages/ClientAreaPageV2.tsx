@@ -473,14 +473,14 @@ const SectionIcon = styled.span`
   }
 `
 
-const ToggleButton = styled.button<{ isOpen: boolean }>`
+const ToggleButton = styled.button<{ $isOpen: boolean }>`
   background: none;
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
   color: var(--color-gray-500);
   transition: transform 0.2s ease;
-  transform: ${({ isOpen }) => isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+  transform: ${({ $isOpen }) => $isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
   padding: var(--spacing-xs);
   
   &:hover {
@@ -492,8 +492,8 @@ const ToggleButton = styled.button<{ isOpen: boolean }>`
   }
 `
 
-const SectionContent = styled.div<{ isOpen: boolean }>`
-  display: ${({ isOpen }) => isOpen ? 'grid' : 'none'};
+const SectionContent = styled.div<{ $isOpen: boolean }>`
+  display: ${({ $isOpen }) => $isOpen ? 'grid' : 'none'};
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-lg);
   animation: fadeIn 0.3s ease;
@@ -592,7 +592,7 @@ const DocumentList = styled.ul`
   margin: 0;
 `
 
-const DocumentListItem = styled.li<{ confidence?: number }>`
+const DocumentListItem = styled.li<{ $confidence?: number }>`
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -600,30 +600,30 @@ const DocumentListItem = styled.li<{ confidence?: number }>`
   font-size: clamp(0.8rem, 1.4vw, 0.85rem);
   color: var(--color-gray-600);
   position: relative;
-  
+
   @media (max-width: 576px) {
     font-size: 0.8rem;
     gap: var(--spacing-xs);
   }
-  
+
   &::before {
     content: '';
-    width: ${({ confidence }) => 
-      confidence && confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
-    height: ${({ confidence }) => 
-      confidence && confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
+    width: ${({ $confidence }) =>
+      $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
+    height: ${({ $confidence }) =>
+      $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '10px' : '6px'};
     border-radius: 50%;
-    background: ${({ confidence }) => 
-      confidence && confidence >= CONFIDENCE_THRESHOLD ? 'var(--color-success)' :
-      confidence ? 'var(--color-error)' :
+    background: ${({ $confidence }) =>
+      $confidence && $confidence >= CONFIDENCE_THRESHOLD ? 'var(--color-success)' :
+      $confidence ? 'var(--color-error)' :
       'var(--color-gray-400)'};
     flex-shrink: 0;
-    
+
     @media (max-width: 576px) {
-      width: ${({ confidence }) => 
-        confidence && confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
-      height: ${({ confidence }) => 
-        confidence && confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
+      width: ${({ $confidence }) =>
+        $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
+      height: ${({ $confidence }) =>
+        $confidence && $confidence >= CONFIDENCE_THRESHOLD ? '8px' : '5px'};
     }
   }
   
@@ -896,25 +896,25 @@ const ClientAreaPageV2: React.FC = () => {
               <CategoryTitle>Doc. personal y laboral</CategoryTitle>
               <DocumentList>
                 <DocumentListItem 
-                  confidence={getDocumentConfidence('vida-laboral')}
+                  $confidence={getDocumentConfidence('vida-laboral')}
                   data-valid={isDocumentUploaded('vida-laboral')}
                 >
                   Vida laboral {getDocumentConfidence('vida-laboral') ? `(${getDocumentConfidence('vida-laboral')}%)` : ''}
                 </DocumentListItem>
                 <DocumentListItem 
-                  confidence={getDocumentConfidence('contrato')}
+                  $confidence={getDocumentConfidence('contrato')}
                   data-valid={isDocumentUploaded('contrato')}
                 >
                   Contrato {getDocumentConfidence('contrato') ? `(${getDocumentConfidence('contrato')}%)` : ''}
                 </DocumentListItem>
                 <DocumentListItem 
-                  confidence={getDocumentConfidence('nominas')}
+                  $confidence={getDocumentConfidence('nominas')}
                   data-valid={isDocumentUploaded('nominas')}
                 >
                   Nóminas (3 últimas) {getDocumentConfidence('nominas') ? `(${getDocumentConfidence('nominas')}%)` : ''}
                 </DocumentListItem>
                 <DocumentListItem 
-                  confidence={getDocumentConfidence('dni-nie')}
+                  $confidence={getDocumentConfidence('dni-nie')}
                   data-valid={isDocumentUploaded('dni-nie')}
                 >
                   DNI/NIE {getDocumentConfidence('dni-nie') ? `(${getDocumentConfidence('dni-nie')}%)` : ''}
@@ -927,19 +927,19 @@ const ClientAreaPageV2: React.FC = () => {
               <CategoryTitle>Doc. económica</CategoryTitle>
               <DocumentList>
                 <DocumentListItem 
-                  confidence={getDocumentConfidence('recibos-prestamos')}
+                  $confidence={getDocumentConfidence('recibos-prestamos')}
                   data-valid={isDocumentUploaded('recibos-prestamos')}
                 >
                   Recibos préstamos {getDocumentConfidence('recibos-prestamos') ? `(${getDocumentConfidence('recibos-prestamos')}%)` : ''}
                 </DocumentListItem>
                 <DocumentListItem 
-                  confidence={getDocumentConfidence('movimientos-bancarios')}
+                  $confidence={getDocumentConfidence('movimientos-bancarios')}
                   data-valid={isDocumentUploaded('movimientos-bancarios')}
                 >
                   Movimientos bancarios {getDocumentConfidence('movimientos-bancarios') ? `(${getDocumentConfidence('movimientos-bancarios')}%)` : ''}
                 </DocumentListItem>
                 <DocumentListItem 
-                  confidence={getDocumentConfidence('declaracion-renta')}
+                  $confidence={getDocumentConfidence('declaracion-renta')}
                   data-valid={isDocumentUploaded('declaracion-renta')}
                 >
                   Declaración de la Renta {getDocumentConfidence('declaracion-renta') ? `(${getDocumentConfidence('declaracion-renta')}%)` : ''}
@@ -957,15 +957,15 @@ const ClientAreaPageV2: React.FC = () => {
                 <SectionIcon>{section.icon}</SectionIcon>
                 {section.title}
               </SectionTitle>
-              <ToggleButton 
-                isOpen={openSections[section.id]}
+              <ToggleButton
+                $isOpen={openSections[section.id]}
                 onClick={(e) => {e.stopPropagation(); toggleSection(section.id)}}
               >
                 ▼
               </ToggleButton>
             </DocumentSectionHeader>
-            
-            <SectionContent isOpen={openSections[section.id]}>
+
+            <SectionContent $isOpen={openSections[section.id]}>
               {section.documents.map(doc => (
                 <DocumentCard key={doc.id}>
                   <DocumentTitle htmlFor={doc.id}>{doc.name}</DocumentTitle>

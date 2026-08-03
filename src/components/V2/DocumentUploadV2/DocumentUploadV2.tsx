@@ -50,12 +50,12 @@ const UploadButton = styled.button`
   }
 `;
 
-const FileCard = styled.div<{ isValid: boolean; hasError: boolean }>`
+const FileCard = styled.div<{ $isValid: boolean; $hasError: boolean }>`
   display: flex;
   flex-direction: column;
-  border: 2px solid ${({ isValid, hasError }) => 
-    isValid ? COLORS.success : 
-    hasError ? COLORS.error : 
+  border: 2px solid ${({ $isValid, $hasError }) =>
+    $isValid ? COLORS.success :
+    $hasError ? COLORS.error :
     COLORS.documentButtonBorder};
   border-radius: var(--radius-md);
   background: white;
@@ -100,16 +100,16 @@ const FileInfo = styled.div`
   padding-bottom: var(--spacing-xs);
 `;
 
-const StatusBadge = styled.div<{ isValid: boolean; hasError: boolean }>`
+const StatusBadge = styled.div<{ $isValid: boolean; $hasError: boolean }>`
   position: absolute;
   top: -10px;
   right: -10px;
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: ${({ isValid, hasError }) => 
-    isValid ? COLORS.success : 
-    hasError ? COLORS.error : 
+  background: ${({ $isValid, $hasError }) =>
+    $isValid ? COLORS.success :
+    $hasError ? COLORS.error :
     'var(--color-gray-400)'};
   color: white;
   display: flex;
@@ -143,12 +143,12 @@ const FileName = styled.div`
   margin-bottom: 4px;
 `;
 
-const ConfidenceBadge = styled.span<{ isValid: boolean }>`
+const ConfidenceBadge = styled.span<{ $isValid: boolean }>`
   display: inline-block;
   font-size: 0.8rem;
   font-weight: 600;
   color: white;
-  background: ${({ isValid }) => (isValid ? COLORS.success : COLORS.error)};
+  background: ${({ $isValid }) => ($isValid ? COLORS.success : COLORS.error)};
   padding: 2px 8px;
   border-radius: var(--radius-full);
   margin-left: var(--spacing-xs);
@@ -169,7 +169,7 @@ const ActionButtons = styled.div`
   border-top: 1px solid var(--color-gray-200);
 `;
 
-const ActionButton = styled.button<{ variant: 'view' | 'delete' }>`
+const ActionButton = styled.button<{ $variant: 'view' | 'delete' }>`
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -181,10 +181,10 @@ const ActionButton = styled.button<{ variant: 'view' | 'delete' }>`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: ${({ variant }) => (variant === 'view' ? COLORS.stepActive : COLORS.error)};
+  color: ${({ $variant }) => ($variant === 'view' ? COLORS.stepActive : COLORS.error)};
 
   &:hover {
-    background: ${({ variant }) => (variant === 'view' ? 'rgba(0, 168, 232, 0.1)' : 'rgba(220, 53, 69, 0.1)')};
+    background: ${({ $variant }) => ($variant === 'view' ? 'rgba(0, 168, 232, 0.1)' : 'rgba(220, 53, 69, 0.1)')};
   }
 `;
 
@@ -341,7 +341,7 @@ ${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''
   };
 
   const isValid = validationResult?.respuesta === 'SI' && validationResult?.confianza >= CONFIDENCE_THRESHOLD;
-  const hasError = validationResult && !isValid;
+  const hasError = !!validationResult && !isValid;
   const confidence = validationResult?.confianza;
 
   // Función para acortar el nombre del archivo
@@ -391,11 +391,11 @@ ${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''
   return (
     <UploadContainer>
       {uploadedFile ? (
-        <FileCard isValid={isValid} hasError={hasError}>
+        <FileCard $isValid={isValid} $hasError={hasError}>
           {/* Botón X para eliminar rápidamente */}
-          <StatusBadge 
-            isValid={isValid} 
-            hasError={hasError}
+          <StatusBadge
+            $isValid={isValid}
+            $hasError={hasError}
             onClick={(e) => { e.stopPropagation(); handleRemove(); }}
             title="Eliminar documento"
           >
@@ -425,7 +425,7 @@ ${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''
               </FileMeta>
             </FileDetails>
             {confidence !== undefined && (
-              <ConfidenceBadge isValid={isValid}>
+              <ConfidenceBadge $isValid={isValid}>
                 {confidence}%
               </ConfidenceBadge>
             )}
@@ -433,10 +433,10 @@ ${validationResult.feedback ? `💬 Feedback: ${validationResult.feedback}` : ''
 
           {/* Botones de acción */}
           <ActionButtons>
-            <ActionButton variant="view" onClick={(e) => { e.stopPropagation(); handleViewDetails(); }}>
+            <ActionButton $variant="view" onClick={(e) => { e.stopPropagation(); handleViewDetails(); }}>
               👁️ Ver detalles
             </ActionButton>
-            <ActionButton variant="delete" onClick={(e) => { e.stopPropagation(); handleRemove(); }}>
+            <ActionButton $variant="delete" onClick={(e) => { e.stopPropagation(); handleRemove(); }}>
               🗑️ Eliminar
             </ActionButton>
           </ActionButtons>

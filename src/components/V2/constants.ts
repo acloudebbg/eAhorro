@@ -2,6 +2,8 @@
 // CONSTANTES PARA EL SISTEMA DE SUBIDA V2
 // ============================================
 
+import { DocumentType, DocumentOption } from './types';
+
 // Colores según especificación de diseño
 export const COLORS = {
   modalBackground: '#ffffff',
@@ -82,11 +84,3 @@ export const ACCEPTED_FORMATS = ['.pdf', '.jpg', '.jpeg', '.png'] as const;
 
 // Endpoint del proxy (Netlify Function) que valida el documento con Claude
 export const VALIDATE_DOCUMENT_ENDPOINT = '/api/validate-document' as const;
-
-// Configuración de EasyOCR API
-// URL de la API de EasyOCR para extracción de texto de imágenes
-// Según la documentación: https://app.easyocr.es/api-docs
-export const EASYOCR_API_URL = 'https://app.easyocr.es/api/v1/recognize' as const;
-
-// Lenguaje para el OCR (español)
-export const EASYOCR_LANGUAGE = 'es' as const;

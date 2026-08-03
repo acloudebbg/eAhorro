@@ -6,8 +6,8 @@ import { Step2CaptureMethod } from './Step2CaptureMethod/Step2CaptureMethod';
 import { Step3Processing } from './Step3Processing/Step3Processing';
 import { Step4Success } from './Step4Success/Step4Success';
 import { DocumentType, ModalStep, ValidationResult, ProcessingState, DocumentOption } from '../../types';
-import { COLORS, DOCUMENT_OPTIONS, MAX_FILE_SIZE_MB } from '../../constants';
-import { processAndValidateFile } from '../utils';
+import { COLORS, DOCUMENT_OPTIONS, MAX_FILE_SIZE_MB, CONFIDENCE_THRESHOLD } from '../../constants';
+import { validateDocumentWithClaude } from '../utils';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -73,6 +73,12 @@ const ModalContent = styled.div`
   padding: 0 var(--spacing-lg) var(--spacing-lg);
 `;
 
+// Duración mínima que se mantiene visible el paso de "procesando", para que el
+// usuario perciba que el sistema está trabajando aunque Claude responda en <1s.
+const MIN_PROCESSING_MS = 2000;
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 interface Props {
   documentLabel: string;
   documentType: DocumentType;
@@ -92,147 +98,76 @@ export const DocumentModal: React.FC<Props> = ({
   const [selectedType, setSelectedType] = useState<DocumentType | null>(documentType);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processingState, setProcessingState] = useState<ProcessingState>({
-    ocrProgress: 0,
-    pdfProgress: 0,
-    llmProgress: 0,
+    progress: 0,
     status: 'idle',
   });
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
-  const [pdfContent, setPdfContent] = useState<string | null>(null);
 
   // Obtener opciones de documento según la categoría
   // Por ahora usamos todas las opciones, pero se puede filtrar por sección
   const allOptions: DocumentOption[] = Object.values(DOCUMENT_OPTIONS);
 
-  // Procesar archivo y validar con LLM
+  const isValid = validationResult
+    ? validationResult.respuesta === 'SI' && validationResult.confianza >= CONFIDENCE_THRESHOLD
+    : undefined;
+
+  // Procesar archivo y validar con Claude
   const processFile = async (file: File) => {
-    const overallStartTime = Date.now();
-    console.log('╔══════════════════════════════════════════════════════════════╗');
-    console.log('║  🎯 DOCUMENT MODAL - INICIANDO PROCESAMIENTO           ║');
-    console.log('╚══════════════════════════════════════════════════════════════╝');
-    console.log('📁 Archivo:', file.name);
-    console.log('📄 Tipo MIME:', file.type);
-    console.log('📏 Tamaño:', (file.size / 1024).toFixed(2), 'KB');
-    console.log('🏷️  Tipo de documento:', selectedType || documentType);
-    console.log('⏱️  Hora de inicio:', new Date().toLocaleTimeString());
-    console.log('');
-    
-    setProcessingState((prev) => ({ ...prev, status: 'processing' }));
-    setCurrentStep(3); // Asegurar que estamos en el paso 3
+    setProcessingState({ progress: 0, status: 'processing' });
+    setCurrentStep(3);
+
+    const startTime = Date.now();
+
+    // Progreso simulado: avanza asintóticamente hacia un techo sin llegar a
+    // completarse, dando sensación de trabajo activo mientras se espera a Claude
+    // (que suele responder en menos de un segundo).
+    let simulatedProgress = 0;
+    const progressTicker = setInterval(() => {
+      simulatedProgress += (90 - simulatedProgress) * 0.12;
+      setProcessingState({ progress: Math.round(simulatedProgress), status: 'processing' });
+    }, 120);
+
+    const finishNoEarlierThanMinDuration = async () => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed < MIN_PROCESSING_MS) {
+        await wait(MIN_PROCESSING_MS - elapsed);
+      }
+    };
 
     try {
-      // Validar tamaño máximo
-      const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
-      if (file.size > MAX_FILE_SIZE) {
-        throw new Error(`Archivo demasiado grande. Máximo ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+      const maxFileSize = MAX_FILE_SIZE_MB * 1024 * 1024;
+      if (file.size > maxFileSize) {
+        throw new Error(`Archivo demasiado grande. Máximo ${MAX_FILE_SIZE_MB}MB`);
       }
 
-      // Validar tipo de archivo
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
       if (!validTypes.includes(file.type)) {
         throw new Error(`Tipo de archivo no soportado: ${file.type}`);
       }
 
-      console.log('✅ Validaciones previas pasadas');
-      console.log('');
-      
-      // Usar la función de procesamiento completo con progreso
       const docType = selectedType || documentType;
-      const result = await processAndValidateFile(
-        file,
-        docType,
-        docType,
-        (stage, progress, info) => {
-          const elapsed = ((Date.now() - overallStartTime) / 1000).toFixed(1);
-          console.log(`   ⏳ [${elapsed}s] ${stage}: ${progress}% - ${info || ''}`);
-          
-          // Actualizar el estado de progreso según la etapa
-          switch (stage) {
-            case 'text_extraction':
-              setProcessingState((prev) => ({
-                ...prev,
-                ocrProgress: progress,
-                pdfProgress: progress * 0.5, // PDF progress sigue al OCR
-                status: 'processing',
-              }));
-              break;
-            case 'llm_validation':
-              // La validación con Claude corre en paralelo a la extracción OCR/PDF,
-              // así que su progreso ya no fuerza ocrProgress/pdfProgress a 100.
-              setProcessingState((prev) => ({
-                ...prev,
-                llmProgress: progress,
-                status: 'processing',
-              }));
-              break;
-          }
-        }
-      );
+      const result = await validateDocumentWithClaude(file, docType);
 
-      const totalTime = ((Date.now() - overallStartTime) / 1000).toFixed(2);
-      console.log('');
-      console.log('╔══════════════════════════════════════════════════════════════╗');
-      console.log('║  ✅ PROCESAMIENTO COMPLETADO CON ÉXITO                 ║');
-      console.log('╚══════════════════════════════════════════════════════════════╝');
-      console.log('⏱️  Tiempo total:', totalTime, 'segundos');
-      console.log('🎯 Resultado:', result.result.respuesta, '(' + result.result.confianza + '%)');
-      console.log('');
+      clearInterval(progressTicker);
+      console.log(`🎯 ${file.name}: ${result.respuesta} (${result.confianza}%)`);
 
-      const previewContent = `Documento: ${selectedType || documentType}
-Nombre: ${file.name}
-Tamaño: ${(file.size / 1024).toFixed(2)} KB
-Tipo: ${file.type}
+      await finishNoEarlierThanMinDuration();
 
---- Validación con Claude ---
-Resultado: ${result.result.respuesta}
-Confianza: ${result.result.confianza}%
-${result.result.feedback ? `Feedback: ${result.result.feedback}` : ''}
-
---- Fin del preview ---`;
-
-      // Actualizar estado
-      setValidationResult(result.result);
-      setPdfContent(previewContent);
-      setSelectedFile(result.pdfFile); // Archivo original enviado a Claude
-
-      setProcessingState((prev) => ({
-        ...prev,
-        ocrProgress: 100,
-        pdfProgress: 100,
-        llmProgress: 100,
-        status: 'complete',
-      }));
-      
+      setValidationResult(result);
+      setProcessingState({ progress: 100, status: 'complete' });
       setCurrentStep(4);
-      
-      console.log('🏁 Paso 4 alcanzado. Listo para mostrar resultados al usuario');
     } catch (error) {
-      const totalTime = ((Date.now() - overallStartTime) / 1000).toFixed(2);
-      console.log('');
-      console.log('╔══════════════════════════════════════════════════════════════╗');
-      console.log('║  ❌ PROCESAMIENTO FALLIDO                               ║');
-      console.log('╚══════════════════════════════════════════════════════════════╝');
-      console.log('⏱️  Tiempo transcurrido:', totalTime, 'segundos');
-      console.error('❌ Error:', error);
-      
+      clearInterval(progressTicker);
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido al procesar el documento';
-      
-      setProcessingState((prev) => ({
-        ...prev,
-        status: 'error',
-        errorMessage: errorMessage,
-        ocrProgress: 0,
-        pdfProgress: 0,
-        llmProgress: 0,
-      }));
-      
-      console.log('');
-      console.log('El usuario verá un mensaje de error en la interfaz');
+      console.error(`❌ ${file.name}:`, errorMessage);
+
+      await finishNoEarlierThanMinDuration();
+
+      setProcessingState({ progress: 0, status: 'error', errorMessage });
     }
   };
 
   const handleFileSelect = async (file: File) => {
-    console.log('📁 Archivo seleccionado:', file.name, file.type, file.size, 'bytes');
     setSelectedFile(file);
     await processFile(file);
   };
@@ -390,14 +325,8 @@ ${result.result.feedback ? `Feedback: ${result.result.feedback}` : ''}
   const handleRetry = () => {
     setCurrentStep(2);
     setSelectedFile(null);
-    setProcessingState({
-      ocrProgress: 0,
-      pdfProgress: 0,
-      llmProgress: 0,
-      status: 'idle',
-    });
+    setProcessingState({ progress: 0, status: 'idle' });
     setValidationResult(null);
-    setPdfContent(null);
   };
 
   const handleDelete = () => {
@@ -427,7 +356,7 @@ ${result.result.feedback ? `Feedback: ${result.result.feedback}` : ''}
           </button>
         </ModalHeader>
 
-        <StepIndicator currentStep={currentStep} />
+        <StepIndicator currentStep={currentStep} isValid={isValid} />
 
         <ModalContent>
           {currentStep === 1 && (
@@ -449,13 +378,15 @@ ${result.result.feedback ? `Feedback: ${result.result.feedback}` : ''}
             <Step3Processing state={processingState} />
           )}
 
-          {currentStep === 4 && validationResult && (
+          {currentStep === 4 && validationResult && isValid !== undefined && (
             <Step4Success
               result={validationResult}
-              pdfContent={pdfContent}
+              isValid={isValid}
+              fileName={selectedFile?.name || ''}
+              fileSizeKB={(selectedFile?.size || 0) / 1024}
+              documentTypeLabel={DOCUMENT_OPTIONS[selectedType || documentType]?.label || (selectedType || documentType)}
               onRetry={handleRetry}
               onDelete={handleDelete}
-              onClose={onClose}
               onComplete={handleComplete}
             />
           )}

@@ -27,9 +27,7 @@ export interface ValidationResult {
 
 // Estado de procesamiento durante la subida
 export interface ProcessingState {
-  ocrProgress: number;      // 0-100
-  pdfProgress: number;      // 0-100
-  llmProgress: number;      // 0-100
+  progress: number;      // 0-100
   status: 'idle' | 'processing' | 'error' | 'complete';
   errorMessage?: string;
 }

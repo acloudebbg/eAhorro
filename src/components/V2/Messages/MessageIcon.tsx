@@ -22,7 +22,7 @@ const MessageIconStyled = styled.div`
 `;
 
 // Contador de mensajes no leídos
-const UnreadBadge = styled.span<{ hasUnread: boolean }>`
+const UnreadBadge = styled.span<{ $hasUnread: boolean }>`
   position: absolute;
   top: -4px;
   right: -4px;
@@ -37,8 +37,8 @@ const UnreadBadge = styled.span<{ hasUnread: boolean }>`
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  
-  ${({ hasUnread }) => hasUnread ? 'opacity: 1;' : 'opacity: 0; pointer-events: none;'}
+
+  ${({ $hasUnread }) => $hasUnread ? 'opacity: 1;' : 'opacity: 0; pointer-events: none;'}
   transition: opacity 0.2s ease;
   
   /* Para números de 2 dígitos */
@@ -75,7 +75,7 @@ const MessageIcon: React.FC = () => {
     >
       <MessageIconStyled>💬</MessageIconStyled>
       {hasUnread && (
-        <UnreadBadge hasUnread={hasUnread}>
+        <UnreadBadge $hasUnread={hasUnread}>
           {unreadCount > 99 ? '99+' : unreadCount}
         </UnreadBadge>
       )}
