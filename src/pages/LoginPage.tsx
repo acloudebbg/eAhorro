@@ -70,6 +70,7 @@ const LoginMain = styled.main`
 `
 
 const LoginCard = styled.div`
+  position: relative;
   background: var(--color-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -77,10 +78,32 @@ const LoginCard = styled.div`
   max-width: 450px;
   width: 100%;
   text-align: center;
-  
+
   @media (max-width: 576px) {
     padding: var(--spacing-xl);
     margin: 0 var(--spacing-sm);
+  }
+`
+
+// Acceso discreto y sin login al prototipo del área personal 3
+const V3AccessBadge = styled.button`
+  position: absolute;
+  right: var(--spacing-sm);
+  bottom: var(--spacing-sm);
+  border: 1px solid var(--color-gray-300);
+  background: var(--color-gray-50);
+  color: var(--color-gray-500);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--color-gray-200);
+    color: var(--color-gray-700);
   }
 `
 
@@ -369,6 +392,10 @@ const LoginPage: React.FC = () => {
     navigate('/area-cliente-v2')
   }
 
+  const handleV3AccessClick = () => {
+    navigate('/area-cliente-v3')
+  }
+
   return (
     <LoginContainer>
       <LoginHeader>
@@ -434,6 +461,8 @@ const LoginPage: React.FC = () => {
               Al continuar, aceptas nuestra <a href="/politica-de-privacidad">Política de Privacidad</a> y <a href="/aviso-legal">Aviso Legal</a>
             </p>
           </LoginHelp>
+
+          <V3AccessBadge onClick={handleV3AccessClick} title="Prototipo área personal 3">V3</V3AccessBadge>
         </LoginCard>
       </LoginMain>
       

@@ -14,6 +14,7 @@ import Layout from './components/Layout/Layout'
 import LoginPage from './pages/LoginPage'
 import ClientAreaPage from './pages/ClientAreaPage'
 import ClientAreaPageV2 from './pages/ClientAreaPageV2'
+import ClientAreaPageV3 from './pages/ClientAreaPageV3'
 
 // Páginas simples para rutas del sitemap
 import AvisoLegalPage from './pages/AvisoLegalPage'
@@ -39,6 +40,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/area-cliente" element={<ClientAreaPage />} />
       <Route path="/area-cliente-v2" element={<ClientAreaPageV2 />} />
+      <Route path="/area-cliente-v3" element={<ClientAreaPageV3 />} />
       
       {/* Home */}
       <Route path="/" element={<LayoutWrapper><HomePage /></LayoutWrapper>} />
