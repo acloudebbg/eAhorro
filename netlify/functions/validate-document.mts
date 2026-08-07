@@ -1,6 +1,6 @@
 import type { Config } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
-import { initLogger, wrapAnthropic } from 'braintrust';
+import { initLogger, wrapAnthropic, flush } from 'braintrust';
 import { getSystemPrompt } from './_shared/systemPrompt';
 import { parseValidationResponse } from './_shared/parseValidationResponse';
 import type { DocumentType } from '../../src/components/V2/types';
@@ -109,6 +109,12 @@ export default async (req: Request): Promise<Response> => {
     }
 
     return jsonResponse(502, { error: 'Error en la validación automatizada' });
+  } finally {
+    // AWS Lambda puede congelar el contenedor justo después de devolver la respuesta,
+    // sin dar tiempo al flush en background que Braintrust hace por defecto en `beforeExit`.
+    if (process.env.BRAINTRUST_API_KEY) {
+      await flush();
+    }
   }
 };
 
