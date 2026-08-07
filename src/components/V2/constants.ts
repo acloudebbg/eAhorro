@@ -93,6 +93,9 @@ export const DOCUMENT_OPTIONS: Record<DocumentType, DocumentOption> = {
 // Umbral de confianza para considerar un documento válido
 export const CONFIDENCE_THRESHOLD = 80;
 
+// Número máximo de ficheros que se pueden subir por sección (p.ej. las 3 últimas nóminas)
+export const MAX_FILES_PER_SECTION = 3;
+
 // Tamaño máximo de archivo en MB
 // Limitado a 4MB para respetar el límite de payload (~6MB) de las Netlify Functions síncronas,
 // que reciben el archivo codificado en base64 (~33% más pesado que el binario original)

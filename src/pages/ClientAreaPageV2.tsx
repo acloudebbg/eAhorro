@@ -2,8 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import DocumentUploadV2 from '../components/V2/DocumentUploadV2/DocumentUploadV2'
-import { ValidationResult, DocumentType } from '../components/V2/types'
-import { CONFIDENCE_THRESHOLD, COLORS } from '../components/V2/constants'
+import { DocumentType, SectionUploadStatus } from '../components/V2/types'
+import { COLORS } from '../components/V2/constants'
 import { MessagesProvider, useMessages, MessageIcon, MessagesModal } from '../components/V2/Messages'
 
 // Interfaces para los documentos
@@ -698,8 +698,10 @@ const ClientAreaContent: React.FC = () => {
   const navigate = useNavigate()
   const { notifySectionComplete } = useMessages()
   const [userName] = useState('Enrique B. B.')
-  const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({})
-  const [validationResults, setValidationResults] = useState<Record<string, ValidationResult>>({})
+  // Estado agregado por sección: cuántos ficheros tiene y si alguno no está validado.
+  // Cada sección (DocumentUploadV2) admite hasta MAX_FILES_PER_SECTION ficheros y
+  // gestiona internamente su propia lista; aquí solo se recibe el resumen.
+  const [sectionStatuses, setSectionStatuses] = useState<Record<string, SectionUploadStatus>>({})
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     'personal-laboral': true,
     'economica': true,
@@ -707,21 +709,19 @@ const ClientAreaContent: React.FC = () => {
     'otros': true
   })
 
-  // Verificar si un documento se ha subido (independientemente de si es válido)
-  const isDocumentUploaded = (docId: string) => !!validationResults[docId]
+  // Verificar si una sección tiene al menos un fichero subido
+  const isDocumentUploaded = (docId: string) => (sectionStatuses[docId]?.count ?? 0) > 0
 
-  // Verificar si un documento subido ha sido validado correctamente
-  const isDocumentValid = (docId: string) => {
-    const result = validationResults[docId]
-    return !!result && result.respuesta === 'SI' && result.confianza >= CONFIDENCE_THRESHOLD
-  }
+  // Verificar si todos los ficheros de la sección han sido validados correctamente.
+  // Si hay al menos un fichero no validado, prevalece el rojo aunque haya otros válidos.
+  const isDocumentValid = (docId: string) => isDocumentUploaded(docId) && !sectionStatuses[docId].hasInvalid
 
   // Progreso global: se cuenta sobre TODOS los documentos (no solo los obligatorios)
   const allDocuments = useMemo(() => documentSections.flatMap(s => s.documents), [])
 
   const uploadedAllDocuments = useMemo(
     () => allDocuments.filter(d => isDocumentUploaded(d.id)).length,
-    [allDocuments, uploadedFiles, validationResults]
+    [allDocuments, sectionStatuses]
   )
 
   // Contador + estado por categoría (para el punto y el pill del acordeón)
@@ -734,7 +734,7 @@ const ClientAreaContent: React.FC = () => {
       stats[section.id] = { total, done, state: hasError ? 'error' : done === total ? 'complete' : 'none' }
     })
     return stats
-  }, [uploadedFiles, validationResults])
+  }, [sectionStatuses])
 
   // Avisar por mensaje cuando un apartado se completa: basta con haber subido
   // todos sus documentos, sin importar si han sido validados correctamente
@@ -747,41 +747,12 @@ const ClientAreaContent: React.FC = () => {
     })
   }, [categoryStats, notifySectionComplete])
 
-  // Manejar subida de archivos con validación
-  const handleFileUpload = (docId: string) => (result: ValidationResult, file: File) => {
-    // Guardar el resultado de validación
-    setValidationResults(prev => ({
+  // Recibir el resumen de ficheros de una sección (lo gestiona DocumentUploadV2)
+  const handleSectionStatusChange = (docId: string) => (status: SectionUploadStatus) => {
+    setSectionStatuses(prev => ({
       ...prev,
-      [docId]: result
+      [docId]: status
     }))
-    
-    // Solo guardar el archivo si la confianza es >= 80%
-    if (result.confianza >= CONFIDENCE_THRESHOLD && result.respuesta === 'SI') {
-      setUploadedFiles(prev => ({
-        ...prev,
-        [docId]: file
-      }))
-    } else {
-      // Si no es válido, eliminar el archivo si existía
-      setUploadedFiles(prev => {
-        const newFiles = { ...prev }
-        delete newFiles[docId]
-        return newFiles
-      })
-    }
-  }
-
-  const handleFileRemove = (docId: string) => () => {
-    setUploadedFiles(prev => {
-      const newFiles = { ...prev }
-      delete newFiles[docId]
-      return newFiles
-    })
-    setValidationResults(prev => {
-      const newResults = { ...prev }
-      delete newResults[docId]
-      return newResults
-    })
   }
 
   // Toggle de secciones
@@ -906,8 +877,7 @@ const ClientAreaContent: React.FC = () => {
                     documentId={doc.id}
                     label={doc.name}
                     documentType={doc.id as DocumentType}
-                    onUploadComplete={handleFileUpload(doc.id)}
-                    onRemove={handleFileRemove(doc.id)}
+                    onStatusChange={handleSectionStatusChange(doc.id)}
                   />
                 </DocumentCard>
               ))}

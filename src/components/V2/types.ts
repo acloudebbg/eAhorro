@@ -47,14 +47,30 @@ export interface DocumentOption {
   icon: string;
 }
 
+// Estado agregado de una sección de subida (hasta MAX_FILES_PER_SECTION ficheros),
+// reportado al padre para calcular contadores y colores a nivel de apartado
+export interface SectionUploadStatus {
+  count: number;
+  hasInvalid: boolean; // al menos un fichero de la sección no está validado
+}
+
 // Props para el componente principal DocumentUploadV2
 export interface DocumentUploadV2Props {
   documentId: string;
   label: string;
   documentType: DocumentType;
   options?: DocumentOption[];
-  onUploadComplete: (result: ValidationResult, file: File) => void;
-  onRemove: () => void;
+  onStatusChange: (status: SectionUploadStatus) => void;
+}
+
+// Un fichero subido dentro de una sección (una sección admite hasta MAX_FILES_PER_SECTION)
+export interface UploadedFileEntry {
+  entryId: string;
+  file: File | null; // null cuando se recupera desde localStorage sin el File real
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  validationResult: ValidationResult;
 }
 
 // Estado de un documento en el área de cliente
