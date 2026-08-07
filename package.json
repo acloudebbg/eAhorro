@@ -22,6 +22,7 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^4.3.3",
     "axios": "^1.19.0",
+    "braintrust": "^3.27.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",

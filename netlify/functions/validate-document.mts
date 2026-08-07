@@ -1,5 +1,6 @@
 import type { Config } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
+import { initLogger, wrapAnthropic } from 'braintrust';
 import { getSystemPrompt } from './_shared/systemPrompt';
 import { parseValidationResponse } from './_shared/parseValidationResponse';
 import type { DocumentType } from '../../src/components/V2/types';
@@ -8,6 +9,12 @@ const ALLOWED_MEDIA_TYPES = ['image/jpeg', 'image/png', 'application/pdf'] as co
 type AllowedMediaType = (typeof ALLOWED_MEDIA_TYPES)[number];
 
 const CLAUDE_MODEL = 'claude-haiku-4-5';
+const BRAINTRUST_PROJECT_ID = 'dd851973-57cc-445a-a8df-6438b78a1a62';
+
+// Solo traza a Braintrust si BRAINTRUST_API_KEY está configurada; si no, el cliente Anthropic funciona sin instrumentar.
+if (process.env.BRAINTRUST_API_KEY) {
+  initLogger({ projectId: BRAINTRUST_PROJECT_ID });
+}
 
 interface RequestBody {
   documentType: DocumentType;
@@ -50,7 +57,9 @@ export default async (req: Request): Promise<Response> => {
   }
 
   try {
-    const client = new Anthropic({ apiKey });
+    const client = process.env.BRAINTRUST_API_KEY
+      ? wrapAnthropic(new Anthropic({ apiKey }))
+      : new Anthropic({ apiKey });
 
     const contentBlock =
       mediaType === 'application/pdf'
